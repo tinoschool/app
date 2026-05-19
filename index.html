@@ -463,57 +463,101 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
 
   <!-- ADMIN -->
   <div class="page" id="page-admin">
-    <div class="admin-hdr"><span style="font-size:26px">⚙️</span><div><h2>Espace Admin</h2><p>Gestion membres &amp; notifications</p></div></div>
-    <div class="admin-sec">📰 Gérer les actualités</div>
-    <!-- Formulaire ajout actu -->
-    <div class="notif-compose" id="actu-form">
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
-        <span style="font-size:20px" id="actu-emoji-preview">📢</span>
-        <div class="fl" style="flex:1;margin-bottom:0">
-          <div class="fl-label">Emoji</div>
-          <select class="fl-input" id="actu-emoji" onchange="document.getElementById('actu-emoji-preview').textContent=this.value" style="padding:8px">
-            <option>📢</option><option>🌟</option><option>🎭</option><option>🎟️</option>
-            <option>📋</option><option>🏆</option><option>👕</option><option>🎵</option>
-            <option>📅</option><option>⚠️</option><option>✅</option><option>🎉</option>
+    <div class="admin-hdr"><span style="font-size:26px">⚙️</span><div><h2>Espace Admin</h2><p>Panneau d'administration Tinoschool</p></div></div>
+
+    <!-- Onglets admin -->
+    <div class="vtabs" id="admin-tabs" style="margin-bottom:20px">
+      <button class="vtab active" onclick="switchAdmin('actus',this)">📰 Actus</button>
+      <button class="vtab" onclick="switchAdmin('roles',this)">👥 Membres</button>
+      <button class="vtab" onclick="switchAdmin('notifs',this)">📢 Notifications</button>
+    </div>
+
+    <!-- ── ONGLET ACTUS ── -->
+    <div id="admin-tab-actus">
+      <div class="admin-sec">Publier une actualité</div>
+      <div class="notif-compose" id="actu-form">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+          <span style="font-size:20px" id="actu-emoji-preview">📢</span>
+          <div class="fl" style="flex:1;margin-bottom:0">
+            <div class="fl-label">Emoji</div>
+            <select class="fl-input" id="actu-emoji" onchange="document.getElementById('actu-emoji-preview').textContent=this.value" style="padding:8px">
+              <option>📢</option><option>🌟</option><option>🎭</option><option>🎟️</option>
+              <option>📋</option><option>🏆</option><option>👕</option><option>🎵</option>
+              <option>📅</option><option>⚠️</option><option>✅</option><option>🎉</option>
+            </select>
+          </div>
+          <div class="fl" style="flex:2;margin-bottom:0">
+            <div class="fl-label">Catégorie</div>
+            <input class="fl-input" id="actu-cat" placeholder="Ex: Spectacle" style="padding:8px">
+          </div>
+        </div>
+        <div class="fl" style="margin-bottom:10px">
+          <div class="fl-label">Titre *</div>
+          <input class="fl-input" id="actu-title" placeholder="Titre de l'actualité">
+        </div>
+        <div class="fl" style="margin-bottom:14px">
+          <div class="fl-label">Description</div>
+          <textarea id="actu-excerpt" style="width:100%;background:#111;border:1px solid #333;border-radius:7px;padding:10px;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:13px;resize:none;outline:none;min-height:70px" placeholder="Description courte…"></textarea>
+        </div>
+        <button class="btn-login" onclick="addActu()" style="font-size:11px;padding:11px">➕ Publier</button>
+      </div>
+      <div class="admin-sec" style="margin-top:4px">Actualités publiées</div>
+      <div id="admin-actus-list"></div>
+    </div>
+
+    <!-- ── ONGLET MEMBRES ── -->
+    <div id="admin-tab-roles" style="display:none">
+      <div class="admin-sec">Attribution des rôles</div>
+      <p style="font-size:11px;color:#555;margin-bottom:14px;line-height:1.6">
+        Seul <span style="color:#FFD000">tinoschool.info@gmail.com</span> peut modifier les rôles.<br>
+        👤 Membre · ✅ Adhérent · ⚙️ Admin
+      </p>
+      <!-- Ajouter un membre manuellement -->
+      <div class="notif-compose" style="margin-bottom:16px">
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:8px">Ajouter un membre</div>
+        <div style="display:flex;gap:8px">
+          <input class="fl-input" id="new-member-email" placeholder="email@exemple.com" style="flex:2">
+          <input class="fl-input" id="new-member-name" placeholder="Prénom Nom" style="flex:2">
+          <select class="fl-input" id="new-member-role" style="flex:1;padding:10px 8px">
+            <option value="membre">👤 Membre</option>
+            <option value="adherent">✅ Adhérent</option>
+            <option value="admin">⚙️ Admin</option>
           </select>
         </div>
-        <div class="fl" style="flex:2;margin-bottom:0">
-          <div class="fl-label">Catégorie</div>
-          <input class="fl-input" id="actu-cat" placeholder="Ex: Spectacle" style="padding:8px">
-        </div>
+        <button class="btn-login" onclick="addMember()" style="font-size:11px;padding:11px;margin-top:10px">➕ Ajouter</button>
       </div>
-      <div class="fl" style="margin-bottom:10px">
-        <div class="fl-label">Titre *</div>
-        <input class="fl-input" id="actu-title" placeholder="Titre de l'actualité">
-      </div>
-      <div class="fl" style="margin-bottom:14px">
-        <div class="fl-label">Description</div>
-        <textarea id="actu-excerpt" style="width:100%;background:#111;border:1px solid #333;border-radius:7px;padding:10px;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:13px;resize:none;outline:none;min-height:70px" placeholder="Description courte…"></textarea>
-      </div>
-      <button class="btn-login" onclick="addActu()" style="font-size:11px;padding:11px">➕ Publier l'actualité</button>
+      <div id="admin-members"></div>
     </div>
-    <!-- Liste actus existantes -->
-    <div id="admin-actus-list" style="margin-bottom:4px"></div>
-    <div class="sep"></div>
 
-    <div class="admin-sec">👥 Membres &amp; Rôles</div>
-    <p style="font-size:11px;color:#555;margin-bottom:12px">Seul l'admin principal (tinoschool.info@gmail.com) peut modifier les rôles.</p>
-    <div id="admin-members"></div>
-    <div class="sep"></div>
-    <div class="admin-sec">📢 Envoyer une notification</div>
-    <div class="notif-compose">
-      <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#555">Message</div>
-      <textarea id="notif-msg" placeholder="Écris ton message…"></textarea>
-      <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#555;margin-top:10px">Destinataires</div>
-      <div class="target-chips">
-        <button class="chip active" data-t="all">Tous</button>
-        <button class="chip" data-t="adherent">Adhérents</button>
-        <button class="chip" data-t="membre">Membres</button>
+    <!-- ── ONGLET NOTIFICATIONS ── -->
+    <div id="admin-tab-notifs" style="display:none">
+      <div class="admin-sec">Envoyer une notification</div>
+      <div class="notif-compose">
+        <div class="fl-label" style="margin-bottom:6px">Message *</div>
+        <textarea id="notif-msg" placeholder="Écris ton message aux membres…" style="width:100%;background:#111;border:1px solid #333;border-radius:7px;padding:12px;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:13px;resize:none;outline:none;min-height:100px"></textarea>
+
+        <div class="fl-label" style="margin-top:14px;margin-bottom:8px">Destinataires</div>
+        <div class="target-chips">
+          <button class="chip active" data-t="all">🌐 Tous</button>
+          <button class="chip" data-t="adherent">✅ Adhérents</button>
+          <button class="chip" data-t="membre">👤 Membres</button>
+        </div>
+
+        <!-- Option email -->
+        <div style="display:flex;align-items:center;gap:10px;padding:12px;background:#111;border-radius:8px;margin-bottom:14px;border:1px solid #222">
+          <input type="checkbox" id="send-email-cb" style="width:16px;height:16px;accent-color:#FFD000;cursor:pointer">
+          <div>
+            <div style="font-size:13px;font-weight:500">📧 Envoyer aussi par email</div>
+            <div style="font-size:11px;color:#555">Les destinataires recevront un email via Brevo</div>
+          </div>
+        </div>
+
+        <button class="btn-login" onclick="sendNotif()" style="font-size:11px;padding:12px">📤 Envoyer la notification</button>
       </div>
-      <button class="btn-login" onclick="sendNotif()" style="font-size:11px;padding:12px">📤 Envoyer</button>
+
+      <div class="admin-sec" style="margin-top:4px">Historique</div>
+      <div id="sent-list"><div class="empty"><span class="empty-ico" style="font-size:28px">📭</span><p>Aucune notification envoyée.</p></div></div>
     </div>
-    <div class="admin-sec">📋 Envoyées</div>
-    <div id="sent-list"><div class="empty"><span class="empty-ico" style="font-size:30px">📭</span><p>Aucune notification.</p></div></div>
   </div>
 </div>
 
@@ -1246,22 +1290,32 @@ async function changeRole(id, role) {
   alert('✅ Rôle mis à jour pour ' + target.name);
 }
 async function sendNotif(){
-  var msg=document.getElementById('notif-msg').value.trim();
-  if(!msg){alert('Écris un message.');return;}
-  var chip=document.querySelector('.chip.active');
-  var target=chip?chip.dataset.t:'all';
-  var time=new Date().toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-  var recipients=getRecipients(target);
-  notifications.unshift({msg:msg,target:target,time:time,read:false});
-  sentNotifs.unshift({msg:msg,target:target,time:time,nb:recipients.length});
-  document.getElementById('notif-msg').value='';
+  var msg = document.getElementById('notif-msg').value.trim();
+  if(!msg) { alert('Écris un message avant d\'envoyer.'); return; }
+  var chip = document.querySelector('#admin-tab-notifs .chip.active');
+  var target = chip ? chip.dataset.t : 'all';
+  var sendEmail = document.getElementById('send-email-cb').checked;
+  var time = new Date().toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  var recipients = getRecipients(target);
+  var tl = {all:'Tous',adherent:'Adhérents',membre:'Membres'};
+
+  // Notif in-app
+  notifications.unshift({msg:msg, target:target, time:time, read:false});
+  sentNotifs.unshift({msg:msg, target:target, time:time, nb:sendEmail?recipients.length:0, byEmail:sendEmail});
+  document.getElementById('notif-msg').value = '';
+  document.getElementById('send-email-cb').checked = false;
   updateBadge();
   renderSentNotifs();
-  try {
-    await sendBrevoEmail(msg, recipients, target);
-    alert('✅ Notification envoyée !\n📧 '+recipients.length+' email(s) envoyé(s).');
-  } catch(e) {
-    alert('✅ Notification in-app envoyée.\n⚠️ Email : '+e.message);
+
+  if(sendEmail) {
+    try {
+      await sendBrevoEmail(msg, recipients, target);
+      alert('✅ Notification envoyée !\n📲 In-app · 📧 ' + recipients.length + ' email(s) envoyé(s) à : ' + tl[target]);
+    } catch(e) {
+      alert('✅ Notification in-app envoyée.\n⚠️ Email non envoyé : ' + e.message);
+    }
+  } else {
+    alert('✅ Notification in-app envoyée à : ' + tl[target]);
   }
 }
 function renderSentNotifs(){
@@ -1269,12 +1323,16 @@ function renderSentNotifs(){
   if(!sentNotifs.length){list.innerHTML='<div class="empty"><span class="empty-ico" style="font-size:28px">📭</span><p>Aucune notification.</p></div>';return;}
   var tl={all:'Tous',adherent:'Adhérents',membre:'Membres'};
   list.innerHTML=sentNotifs.map(function(n){
-    return '<div class="sent-row"><div class="sent-dot"></div><div><div class="sent-msg">'+n.msg+'</div><div class="sent-meta">'+n.time+' · '+tl[n.target]+(n.nb?' · 📧 '+n.nb+' email(s)':'')+'</div></div></div>';
+    var emailInfo = n.byEmail ? ' · 📧 '+n.nb+' email(s)' : ' · 📲 In-app uniquement';
+    return '<div class="sent-row"><div class="sent-dot"></div><div>'
+      +'<div class="sent-msg">'+n.msg+'</div>'
+      +'<div class="sent-meta">'+n.time+' · '+(tl[n.target]||'Tous')+emailInfo+'</div>'
+      +'</div></div>';
   }).join('');
 }
-document.querySelectorAll('.chip').forEach(function(c){
+document.querySelectorAll('#admin-tab-notifs .chip').forEach(function(c){
   c.addEventListener('click',function(){
-    document.querySelectorAll('.chip').forEach(function(x){x.classList.remove('active');});
+    document.querySelectorAll('#admin-tab-notifs .chip').forEach(function(x){x.classList.remove('active');});
     c.classList.add('active');
   });
 });
@@ -1296,6 +1354,37 @@ function setCalView(mode, btn) {
   btn.classList.add('active');
   var iframe = document.getElementById('gcal-iframe');
   iframe.src = 'https://calendar.google.com/calendar/embed?src=tinoschool.info%40gmail.com&ctz=Europe%2FBrussels&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&mode='+mode+'&bgcolor=%230a0a0a&color=%23FFD000';
+}
+
+// ── ADMIN TABS ──
+function switchAdmin(tab, btn) {
+  var btns = document.getElementById('admin-tabs').querySelectorAll('.vtab');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+  document.getElementById('admin-tab-actus').style.display  = tab==='actus'  ? 'block' : 'none';
+  document.getElementById('admin-tab-roles').style.display  = tab==='roles'  ? 'block' : 'none';
+  document.getElementById('admin-tab-notifs').style.display = tab==='notifs' ? 'block' : 'none';
+  // Charger les membres quand on ouvre l'onglet
+  if(tab==='roles') buildAdminMembers();
+}
+
+// ── AJOUTER UN MEMBRE ──
+async function addMember() {
+  var email = document.getElementById('new-member-email').value.trim().toLowerCase();
+  var name  = document.getElementById('new-member-name').value.trim();
+  var role  = document.getElementById('new-member-role').value;
+  if(!email) { alert('L\'email est obligatoire.'); return; }
+  if(!name)  { name = email.split('@')[0]; }
+  var initials = name.split(' ').map(function(w){return w[0]?w[0].toUpperCase():'';}).join('').slice(0,2);
+  try {
+    await saveMemberToDB({email:email, name:name, initials:initials, role:role});
+    document.getElementById('new-member-email').value = '';
+    document.getElementById('new-member-name').value  = '';
+    alert('✅ ' + name + ' ajouté comme ' + role + ' !');
+    buildAdminMembers();
+  } catch(e) {
+    alert('⚠️ Erreur : ' + e.message);
+  }
 }
 
 // ── KEYBOARD ──
