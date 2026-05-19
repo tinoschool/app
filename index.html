@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a0a">
+<title>Tinoschool — Espace Membres</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:#0a0a0a; --dark:#111; --card:#181818; --card2:#1f1f1f;
+  --border:rgba(255,255,255,0.07); --yellow:#FFD000;
+  --yellow-dim:rgba(255,208,0,0.15); --white:#f0f0f0;
+  --muted:#666; --muted2:#444; --red:#ff4444; --green:#44cc88;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif;font-weight:300;width:100%;min-height:100vh;overflow-x:hidden}
+
+/* ── SPLASH ── */
+#splash{position:fixed;inset:0;z-index:100;background:var(--black);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0}
+.splash-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(255,208,0,0.18) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 100% 100%,rgba(255,208,0,0.06) 0%,transparent 50%);pointer-events:none}
+.splash-logo-wrap{position:relative;z-index:1;text-align:center;margin-bottom:48px;animation:fadeDown .7s ease both}
+.splash-sub{font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.splash-form{position:relative;z-index:1;width:calc(100% - 48px);max-width:340px;display:flex;flex-direction:column;gap:14px;animation:fadeUp .7s .2s ease both}
+.field-wrap{display:flex;flex-direction:column;gap:6px}
+.field-label{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--muted)}
+.field-input{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:300;outline:none;transition:border-color .2s,box-shadow .2s}
+.field-input:focus{border-color:var(--yellow);box-shadow:0 0 0 3px rgba(255,208,0,.1)}
+.field-input::placeholder{color:var(--muted2)}
+.field-select{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:300;outline:none;transition:border-color .2s;appearance:none;cursor:pointer}
+.field-select:focus{border-color:var(--yellow)}
+.btn-primary{background:var(--yellow);color:var(--black);border:none;border-radius:8px;padding:16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:opacity .15s,transform .1s;width:100%}
+.btn-primary:active{transform:scale(.98);opacity:.9}
+.splash-hint{margin-top:20px;font-size:12px;color:var(--muted);text-align:center;position:relative;z-index:1;animation:fadeUp .7s .3s ease both}
+.splash-hint a{color:var(--yellow);text-decoration:none}
+
+/* ── BADGE ROLE ── */
+.role-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:500}
+.role-badge.membre{background:rgba(255,208,0,.12);color:var(--yellow)}
+.role-badge.adherent{background:rgba(68,204,136,.12);color:var(--green)}
+.role-badge.admin{background:rgba(255,68,68,.12);color:#ff6b6b}
+
+/* ── APP SHELL ── */
+#app{display:none;flex-direction:column;min-height:100vh;padding-bottom:86px}
+.topbar{position:sticky;top:0;z-index:20;padding:48px 20px 16px;background:linear-gradient(to bottom,var(--black) 75%,transparent);display:flex;justify-content:space-between;align-items:flex-start}
+.topbar-greeting{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.topbar-name{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;line-height:1}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-avatar{width:42px;height:42px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--black);cursor:pointer;flex-shrink:0;border:2px solid transparent;transition:border-color .2s}
+.topbar-avatar:hover{border-color:rgba(255,208,0,.5)}
+.admin-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.3);display:none;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:background .15s}
+.admin-btn:hover{background:rgba(255,68,68,.2)}
+.admin-btn.show{display:flex}
+
+/* ── PAGES ── */
+.page{display:none;padding:0 16px;animation:slideUp .3s ease}
+.page.active{display:block}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── SECTION HEADERS ── */
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:4px}
+.sec-sub{font-size:12px;color:var(--muted);margin-bottom:22px;letter-spacing:.05em}
+
+/* ── LOCKED OVERLAY ── */
+.locked-section{position:relative}
+.locked-overlay{position:absolute;inset:0;background:rgba(10,10,10,.92);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:10;backdrop-filter:blur(4px)}
+.lock-icon{font-size:40px}
+.lock-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--white)}
+.lock-desc{font-size:13px;color:var(--muted);text-align:center;padding:0 20px;line-height:1.6}
+.lock-badge{padding:6px 16px;border-radius:20px;background:rgba(255,208,0,.12);border:1px solid rgba(255,208,0,.3);color:var(--yellow);font-size:11px;letter-spacing:.15em;text-transform:uppercase}
+
+/* ── CARDS ── */
+.card{background:var(--card);border-radius:14px;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .2s,transform .15s}
+.card:active{transform:scale(.98)}
+.card:hover{border-color:rgba(255,208,0,.25)}
+
+/* ── HOME ── */
+.hero-banner{background:linear-gradient(135deg,rgba(255,208,0,.12) 0%,rgba(255,208,0,.04) 100%);border:1px solid rgba(255,208,0,.25);border-radius:16px;padding:22px;margin-bottom:24px;position:relative;overflow:hidden;cursor:pointer}
+.hero-banner::before{content:'TS';position:absolute;right:-8px;bottom:-16px;font-family:'Bebas Neue',sans-serif;font-size:100px;letter-spacing:-2px;color:rgba(255,208,0,.06);pointer-events:none}
+.hero-tag{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--yellow);margin-bottom:6px}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;margin-bottom:8px;line-height:1.1}
+.hero-meta{font-size:12px;color:var(--muted)}
+.home-sec-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.home-sec-head h3{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px}
+.home-sec-head span{font-size:11px;color:var(--yellow);cursor:pointer}
+.h-scroll{display:flex;gap:12px;overflow-x:auto;padding:0 16px 4px;margin:0 -16px;scrollbar-width:none}
+.h-scroll::-webkit-scrollbar{display:none}
+.mini-event{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;min-width:160px;flex-shrink:0;cursor:pointer;transition:border-color .2s}
+.mini-event:hover{border-color:rgba(255,208,0,.3)}
+.mini-event-day{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1;color:var(--yellow)}
+.mini-event-month{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.mini-event-name{font-size:13px;font-weight:500;margin-bottom:4px;line-height:1.3}
+.mini-event-type{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--yellow)}
+.mini-news{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;cursor:pointer;transition:border-color .2s}
+.mini-news:hover{border-color:rgba(255,208,0,.25)}
+.mini-news-cat{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--yellow);margin-bottom:4px}
+.mini-news-title{font-size:15px;font-weight:500;line-height:1.3;margin-bottom:4px}
+.mini-news-date{font-size:11px;color:var(--muted)}
+
+/* ── VIDEOS ── */
+.video-tabs{display:flex;gap:8px;margin-bottom:20px;overflow-x:auto;scrollbar-width:none}
+.video-tabs::-webkit-scrollbar{display:none}
+.vtab{padding:8px 16px;border-radius:20px;font-size:12px;font-weight:500;letter-spacing:.05em;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .15s;font-family:'DM Sans',sans-serif}
+.vtab.active{background:var(--yellow);color:var(--black);border-color:var(--yellow)}
+.video-grid{display:flex;flex-direction:column;gap:14px}
+.video-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:border-color .2s}
+.video-card:hover{border-color:rgba(255,208,0,.3)}
+.video-thumb{width:100%;position:relative;background:var(--card2);aspect-ratio:16/9;overflow:hidden}
+.play-btn{width:52px;height:52px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--black);transition:transform .15s}
+.video-card:hover .play-btn{transform:scale(1.1)}
+.video-info{padding:14px 16px 16px}
+.video-cat{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--yellow);margin-bottom:4px}
+.video-title{font-size:15px;font-weight:500;margin-bottom:6px;line-height:1.3}
+.video-meta{font-size:12px;color:var(--muted);display:flex;gap:12px}
+.video-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:200;flex-direction:column;justify-content:center;align-items:center}
+.video-modal.open{display:flex}
+.modal-close{position:absolute;top:20px;right:20px;width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--white);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:201}
+.modal-player{width:calc(100% - 32px);max-width:430px;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000}
+.modal-player iframe{width:100%;height:100%;border:none}
+.modal-info{width:calc(100% - 32px);max-width:430px;margin-top:16px}
+.modal-title{font-size:16px;font-weight:500;margin-bottom:4px}
+.modal-desc{font-size:13px;color:var(--muted)}
+
+/* ── UPLOAD ── */
+.upload-zone{border:2px dashed rgba(255,208,0,.35);border-radius:16px;padding:32px 20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;margin-bottom:24px;position:relative;background:rgba(255,208,0,.03)}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--yellow);background:rgba(255,208,0,.07)}
+.upload-icon{font-size:40px;margin-bottom:10px;display:block}
+.upload-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;margin-bottom:4px}
+.upload-hint{font-size:12px;color:var(--muted);margin-bottom:14px}
+.upload-formats{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.fmt-pill{padding:3px 10px;border-radius:20px;background:var(--card2);font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.upload-progress-wrap{display:none;margin-bottom:20px}
+.upload-progress-wrap.show{display:block}
+.up-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px}
+.up-label span:last-child{color:var(--yellow)}
+.progress-bar-bg{height:4px;background:var(--card2);border-radius:4px;overflow:hidden}
+.progress-bar-fill{height:100%;width:0%;background:var(--yellow);border-radius:4px;transition:width .3s ease}
+.my-videos-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.my-videos-header h3{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px}
+.my-videos-count{font-size:11px;color:var(--yellow)}
+.my-vid-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px}
+.my-vid-thumb{width:100%;aspect-ratio:16/9;background:var(--card2);position:relative;cursor:pointer;overflow:hidden}
+.my-vid-thumb video{width:100%;height:100%;object-fit:cover;display:block}
+.my-vid-overlay{position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
+.my-vid-card:hover .my-vid-overlay{opacity:1}
+.my-play-btn{width:52px;height:52px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--black)}
+.my-vid-info{padding:12px 14px 14px;display:flex;gap:10px;align-items:flex-start}
+.my-vid-text{flex:1;min-width:0}
+.my-vid-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.my-vid-meta{font-size:11px;color:var(--muted)}
+.my-vid-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
+.my-vid-tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;background:var(--yellow-dim);color:var(--yellow)}
+.my-vid-tag.cat-choregraphie{background:rgba(68,204,136,.12);color:var(--green)}
+.my-vid-del{width:30px;height:30px;border-radius:8px;background:rgba(255,68,68,.1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:#ff6b6b;flex-shrink:0;transition:background .15s}
+.my-vid-del:hover{background:rgba(255,68,68,.2)}
+.my-vid-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:200;flex-direction:column;justify-content:center;align-items:center}
+.my-vid-modal.open{display:flex}
+.my-modal-video{width:calc(100% - 32px);max-width:430px;border-radius:12px;overflow:hidden;background:#000}
+.my-modal-video video{width:100%;display:block;max-height:70vh;object-fit:contain}
+.my-modal-info{width:calc(100% - 32px);max-width:430px;margin-top:14px}
+.my-modal-title{font-size:16px;font-weight:500;margin-bottom:4px}
+.my-modal-sub{font-size:12px;color:var(--muted)}
+.empty-state{text-align:center;padding:32px 20px;color:var(--muted)}
+.empty-state .empty-ico{font-size:48px;margin-bottom:12px;display:block}
+.empty-state p{font-size:13px;line-height:1.6}
+.cat-btn{flex:1;padding:12px 8px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .15s;text-align:center}
+.cat-btn.active{background:var(--yellow-dim);border-color:var(--yellow);color:var(--yellow);font-weight:600}
+
+/* ── UPLOAD MODAL ── */
+.upload-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:300;overflow-y:auto;padding:20px 0}
+.upload-modal.open{display:flex;align-items:flex-start;justify-content:center}
+.upload-modal-inner{width:calc(100% - 32px);max-width:430px;background:var(--dark);border-radius:20px;padding:24px;position:relative;margin-top:40px}
+
+/* ── AGENDA ── */
+.month-head{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--yellow);margin-bottom:14px;margin-top:4px}
+.event-row{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:10px;display:flex;gap:16px;align-items:flex-start;cursor:pointer;transition:border-color .2s}
+.event-row:hover{border-color:rgba(255,208,0,.3)}
+.event-date{display:flex;flex-direction:column;align-items:center;min-width:38px}
+.ev-day{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;color:var(--yellow)}
+.ev-mo{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.ev-sep{width:1px;background:var(--border);align-self:stretch;flex-shrink:0}
+.ev-body{flex:1}
+.ev-tag{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--yellow);margin-bottom:3px}
+.ev-name{font-size:15px;font-weight:500;margin-bottom:6px}
+.ev-details{display:flex;gap:12px;flex-wrap:wrap}
+.ev-details span{font-size:12px;color:var(--muted)}
+.ev-badge{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:20px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:var(--yellow-dim);color:var(--yellow)}
+.ev-badge.red{background:rgba(255,68,68,.1);color:var(--red)}
+.gcal-banner{background:linear-gradient(135deg,rgba(66,133,244,.15),rgba(66,133,244,.05));border:1px solid rgba(66,133,244,.25);border-radius:12px;padding:14px 16px;margin-bottom:20px;display:flex;gap:12px;align-items:center}
+.gcal-icon{font-size:24px;flex-shrink:0}
+.gcal-text{flex:1}
+.gcal-text p{font-size:12px;color:var(--muted);line-height:1.5;margin-top:3px}
+.gcal-text h4{font-size:14px;font-weight:500;color:var(--white)}
+
+/* ── NEWS ── */
+.news-big{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px;cursor:pointer;transition:border-color .2s}
+.news-big:hover{border-color:rgba(255,208,0,.25)}
+.news-banner{height:110px;display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden}
+.news-banner-bg{position:absolute;inset:0}
+.news-banner-emoji{position:relative;z-index:1}
+.news-body-pad{padding:16px 18px 20px}
+.news-cat{font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--yellow);margin-bottom:5px}
+.news-ttl{font-size:17px;font-weight:500;line-height:1.3;margin-bottom:8px}
+.news-excerpt{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.news-dt{font-size:11px;color:var(--muted2)}
+.notif-banner{background:linear-gradient(135deg,rgba(255,208,0,.1),rgba(255,208,0,.04));border:1px solid rgba(255,208,0,.2);border-radius:12px;padding:14px 16px;margin-bottom:20px;display:flex;gap:12px;align-items:center}
+.notif-banner span{flex:1;font-size:13px;color:var(--muted);line-height:1.5}
+.notif-badge{width:36px;height:36px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+
+/* ── MUSIQUE ── */
+.playlist-card{background:linear-gradient(135deg,rgba(255,208,0,.12),rgba(255,208,0,.04));border:1px solid rgba(255,208,0,.2);border-radius:14px;padding:18px;display:flex;gap:14px;align-items:center;margin-bottom:22px}
+.playlist-art{width:56px;height:56px;border-radius:10px;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.playlist-info h3{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;margin-bottom:3px}
+.playlist-info p{font-size:12px;color:var(--muted)}
+.track-row{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:background .2s,border-color .2s}
+.track-row:hover,.track-row.playing{background:rgba(255,208,0,.07);border-color:rgba(255,208,0,.25)}
+.tr-num{font-size:13px;color:var(--muted);min-width:18px;text-align:center}
+.track-row.playing .tr-num{color:var(--yellow)}
+.tr-disc{width:38px;height:38px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.track-row.playing .tr-disc{background:var(--yellow);animation:spin 3s linear infinite}
+.tr-info{flex:1;min-width:0}
+.tr-name{font-size:14px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track-row.playing .tr-name{color:var(--yellow)}
+.tr-style{font-size:11px;color:var(--muted);margin-top:1px}
+.tr-dur{font-size:12px;color:var(--muted);flex-shrink:0}
+.mini-player{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);width:calc(100% - 28px);max-width:440px;background:#222;border-radius:14px;padding:11px 14px;display:none;align-items:center;gap:12px;z-index:25;border:1px solid rgba(255,208,0,.2);box-shadow:0 8px 40px rgba(0,0,0,.7)}
+.mini-player.on{display:flex}
+.mini-disc{width:34px;height:34px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;animation:spin 3s linear infinite}
+.mini-text{flex:1;min-width:0}
+.mini-trk{font-size:13px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-sty{font-size:11px;color:var(--muted)}
+.mini-stop{width:34px;height:34px;border-radius:50%;background:var(--yellow);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--black);flex-shrink:0;transition:transform .1s}
+.mini-stop:active{transform:scale(.95)}
+
+/* ── PROFIL ── */
+.profile-top{display:flex;flex-direction:column;align-items:center;padding:20px 0 28px;text-align:center}
+.profile-ava{width:76px;height:76px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--black);margin-bottom:14px;border:3px solid rgba(255,208,0,.3)}
+.profile-name{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:2px;margin-bottom:6px}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-radius:12px;overflow:hidden;margin-bottom:22px}
+.stat{background:var(--card);padding:16px 8px;text-align:center}
+.stat-val{display:block;font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;color:var(--yellow)}
+.stat-lbl{display:block;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.menu-row{display:flex;align-items:center;gap:14px;padding:15px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.menu-row:hover{border-color:rgba(255,208,0,.2)}
+.menu-ico{width:34px;height:34px;border-radius:8px;background:var(--yellow-dim);display:flex;align-items:center;justify-content:center;font-size:15px}
+.menu-lbl{flex:1;font-size:14px;font-weight:400}
+.menu-arr{color:var(--muted);font-size:14px}
+.btn-deconnect{width:100%;margin-top:14px;padding:15px;background:transparent;border:1px solid rgba(255,68,68,.25);border-radius:10px;color:#ff6b6b;font-family:'DM Sans',sans-serif;font-size:13px;letter-spacing:.1em;cursor:pointer;transition:background .2s}
+.btn-deconnect:hover{background:rgba(255,68,68,.07)}
+.social-row{display:flex;gap:10px;margin-bottom:20px}
+.social-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 8px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:11px;color:var(--muted);cursor:pointer;text-decoration:none;transition:border-color .2s,color .2s}
+.social-btn:hover{border-color:rgba(255,208,0,.3);color:var(--yellow)}
+
+/* ── ADMIN PANEL ── */
+#page-admin{display:none;padding:0 16px;animation:slideUp .3s ease}
+#page-admin.active{display:block}
+.admin-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding:16px;background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.2);border-radius:12px}
+.admin-header-icon{font-size:28px}
+.admin-header h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#ff6b6b}
+.admin-header p{font-size:12px;color:var(--muted);margin-top:2px}
+.admin-section-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;color:var(--white);margin-bottom:14px;margin-top:8px}
+.member-row{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+.member-ava{width:38px;height:38px;border-radius:50%;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--black);flex-shrink:0}
+.member-info{flex:1;min-width:0}
+.member-name{font-size:14px;font-weight:500;margin-bottom:2px}
+.member-email{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.role-select{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;cursor:pointer}
+.role-select:focus{border-color:var(--yellow)}
+.notif-compose{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px}
+.notif-compose textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:14px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;resize:none;outline:none;min-height:100px;transition:border-color .2s;margin-top:8px}
+.notif-compose textarea:focus{border-color:var(--yellow)}
+.notif-compose textarea::placeholder{color:var(--muted2)}
+.notif-targets{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;margin-bottom:16px}
+.target-chip{padding:6px 14px;border-radius:20px;font-size:11px;letter-spacing:.1em;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.target-chip.active{background:var(--yellow-dim);border-color:var(--yellow);color:var(--yellow)}
+.sent-notif-row{display:flex;gap:12px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+.sent-notif-dot{width:8px;height:8px;border-radius:50%;background:var(--yellow);flex-shrink:0;margin-top:5px}
+.sent-notif-body{flex:1}
+.sent-notif-msg{font-size:13px;margin-bottom:4px;line-height:1.5}
+.sent-notif-meta{font-size:11px;color:var(--muted)}
+
+/* ── NOTIFICATIONS BADGE ── */
+.notif-row{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+.notif-row.unread{border-color:rgba(255,208,0,.3);background:rgba(255,208,0,.04)}
+.notif-dot{width:8px;height:8px;border-radius:50%;background:var(--yellow);flex-shrink:0;margin-top:5px}
+.notif-dot.read{background:var(--muted2)}
+.notif-content{flex:1}
+.notif-text{font-size:13px;line-height:1.5;margin-bottom:4px}
+.notif-time{font-size:11px;color:var(--muted)}
+.notif-badge-count{position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--red);font-size:9px;color:#fff;display:none;align-items:center;justify-content:center;font-weight:600}
+.notif-badge-count.show{display:flex}
+.topbar-notif{position:relative;width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:border-color .15s}
+.topbar-notif:hover{border-color:rgba(255,208,0,.3)}
+
+/* ── NAV ── */
+.bottom-nav{display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(10,10,10,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:8px 0 22px;z-index:30;flex-direction:row}
+.bottom-nav.show{display:flex}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;background:none;border:none;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .15s}
+.nav-btn.active{color:var(--yellow)}
+.nav-ico{font-size:20px;line-height:1}
+.nav-lbl{font-size:9px;letter-spacing:.1em;text-transform:uppercase}
+.nav-pip{width:4px;height:4px;border-radius:50%;background:var(--yellow);opacity:0;margin-top:1px}
+.nav-btn.active .nav-pip{opacity:1}
+.fab{position:fixed;bottom:86px;right:16px;width:52px;height:52px;border-radius:50%;background:var(--yellow);border:none;cursor:pointer;display:none;align-items:center;justify-content:center;font-size:22px;color:var(--black);z-index:24;box-shadow:0 4px 20px rgba(255,208,0,.4);transition:transform .15s}
+.fab.show{display:flex}
+.fab:active{transform:scale(.95)}
+@media(min-width:600px){.bottom-nav{padding:8px 0 10px}#app{padding-bottom:60px}.mini-player{bottom:56px}}
+.sep{height:1px;background:var(--border);margin:20px 0}
+.mt{margin-top:20px}
+
+/* Logo Tinoschool — chargé une seule fois */
+.tino-logo {
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(255,208,0,.5));
+}
+#tino-logo-1 { height: 110px; }
+#tino-logo-2 { height: 90px; }
+#tino-logo-3 { height: 90px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════ SPLASH ══════════ -->
+<div id="splash">
+  <div class="splash-bg"></div>
+  <div class="splash-logo-wrap">
+    <img id="tino-logo-1" class="tino-logo" alt="Tinoschool">
+    <div class="splash-sub">École de danse Hip-Hop · Île-de-France</div>
+  </div>
+  <div class="splash-form">
+    <div class="field-wrap">
+      <div class="field-label">Adresse e-mail</div>
+      <input class="field-input" type="email" id="f-email" placeholder="prenom@exemple.fr">
+    </div>
+    <div class="field-wrap">
+      <div class="field-label">Mot de passe</div>
+      <input class="field-input" type="password" id="f-pwd" placeholder="••••••••">
+    </div>
+    <button class="btn-primary" onclick="login()">Accéder à mon espace</button>
+  </div>
+  <div id="login-error" style="display:none;background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.3);border-radius:8px;padding:12px 16px;font-size:13px;color:#ff8080;text-align:center;line-height:1.5;width:calc(100% - 48px);max-width:340px;position:relative;z-index:1;animation:fadeUp .3s ease"></div>
+  <div class="splash-hint">
+    Problème de connexion ? <a href="mailto:tinoschool.info@gmail.com">Contacter l\'école</a>
+  </div>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div id="app">
+  <div class="topbar">
+    <div>
+      <div class="topbar-greeting">Bienvenue,</div>
+      <div class="topbar-name" id="user-name">Danseur</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-notif" onclick="goPage('notifs')" title="Notifications">
+        🔔
+        <div class="notif-badge-count" id="notif-count">0</div>
+      </div>
+      <div class="admin-btn" id="admin-btn" onclick="goPage('admin')" title="Admin">⚙️</div>
+      <div class="topbar-avatar" id="user-ava" onclick="goPage('profil')">TS</div>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+  <div class="my-modal-info"><div class="my-modal-title" id="my-modal-title"></div><div class="my-modal-sub" id="my-modal-sub"></div></div>
+</div>
+
+<!-- MODAL UPLOAD STRUCTURÉ -->
+<div class="upload-modal" id="upload-modal">
+  <div class="upload-modal-inner">
+    <button class="modal-close" style="position:absolute;top:16px;right:16px" onclick="closeUploadModal()">✕</button>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:20px;text-align:center">📹 Nouvelle vidéo</div>
+    <!-- Catégorie -->
+    <div class="field-wrap" style="margin-bottom:16px">
+      <div class="field-label">Catégorie *</div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <button class="cat-btn active" id="cat-freestyle" onclick="selectCat('freestyle')">🕺 Freestyle</button>
+        <button class="cat-btn" id="cat-choregraphie" onclick="selectCat('choregraphie')">💃 Chorégraphie</button>
+      </div>
+    </div>
+    <!-- Nom du cours -->
+    <div class="field-wrap" style="margin-bottom:14px">
+      <div class="field-label">Nom du cours *</div>
+      <select class="field-select" id="up-cours" style="margin-top:6px">
+        <option value="">— Choisir le cours —</option>
+        <option>Hip-Hop Enfants 6–7 ans</option>
+        <option>Hip-Hop 8–12 ans</option>
+        <option>Hip-Hop Ados</option>
+        <option>Hip-Hop Adultes</option>
+        <option>House Dance</option>
+        <option>Afro Dance</option>
+        <option>Freestyle / Battle</option>
+        <option>Break / Bboy</option>
+        <option>Locking</option>
+        <option>Popping</option>
+        <option>Jazz Rock</option>
+      </select>
+    </div>
+    <!-- Champs Freestyle -->
+    <div id="fields-freestyle">
+      <div class="field-wrap" style="margin-bottom:14px">
+        <div class="field-label">Nom de l'élève *</div>
+        <input class="field-input" id="up-eleve" type="text" placeholder="Prénom Nom" style="margin-top:6px">
+      </div>
+      <div class="field-wrap" style="margin-bottom:14px">
+        <div class="field-label">Année</div>
+        <select class="field-select" id="up-annee" style="margin-top:6px">
+          <option value="">— Année —</option>
+          <option>2026</option><option>2025</option><option>2024</option><option>2023</option><option>2022</option>
+        </select>
+      </div>
+    </div>
+    <!-- Champs Chorégraphie -->
+    <div id="fields-choregraphie" style="display:none">
+      <div class="field-wrap" style="margin-bottom:14px">
+        <div class="field-label">Nom de la chorégraphie *</div>
+        <select class="field-select" id="up-choree" style="margin-top:6px">
+          <option value="">— Choisir la chorée —</option>
+          <option>Ouverture — Ensemble</option>
+          <option>Chorée Enfants Gala 2026</option>
+          <option>Showcase Ados 2026</option>
+          <option>Freestyle Adultes 2026</option>
+          <option>Locking Solo 2026</option>
+          <option>Finale — Tous niveaux</option>
+          <option>Battle Tinoschool Week</option>
+        </select>
+      </div>
+    </div>
+    <!-- Fichier -->
+    <div class="field-wrap" style="margin-bottom:20px">
+      <div class="field-label">Fichier vidéo *</div>
+      <div class="upload-zone" style="padding:16px;margin-top:6px;margin-bottom:0;position:relative">
+        <input type="file" accept="video/*" id="video-file-input"
+               style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%"
+               onchange="previewFile(this.files[0])">
+        <div id="file-preview" style="text-align:center">
+          <span style="font-size:24px">📁</span>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Appuyer pour choisir</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="submitUpload()">Téléverser la vidéo</button>
+    <div id="upload-err" style="color:#ff6b6b;font-size:12px;text-align:center;margin-top:10px;display:none"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="nav-btn active" onclick="goPage('home')">
+    <div class="nav-ico">🏠</div><div class="nav-lbl">Accueil</div><div class="nav-pip"></div>
+  </button>
+  <button class="nav-btn" onclick="goPage('videos')">
+    <div class="nav-ico">🎬</div><div class="nav-lbl">Vidéos</div><div class="nav-pip"></div>
+  </button>
+  <button class="nav-btn" onclick="goPage('agenda')">
+    <div class="nav-ico">📅</div><div class="nav-lbl">Agenda</div><div class="nav-pip"></div>
+  </button>
+  <button class="nav-btn" onclick="goPage('news')">
+    <div class="nav-ico">📢</div><div class="nav-lbl">Actus</div><div class="nav-pip"></div>
+  </button>
+  <button class="nav-btn" onclick="goPage('musique')">
+    <div class="nav-ico">🎵</div><div class="nav-lbl">Musiques</div><div class="nav-pip"></div>
+  </button>
+  <button class="nav-btn" onclick="goPage('profil')">
+    <div class="nav-ico">👤</div><div class="nav-lbl">Profil</div><div class="nav-pip"></div>
+  </button>
+</nav>
+
+<script>
+
+// Logo Tinoschool — déclaré une seule fois
+var TINO_LOGO_SRC = "data:image/png;base64,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";
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.tino-logo').forEach(function(img) {
+    img.src = TINO_LOGO_SRC;
+  });
+  // Logo splash uniquement
+  var l1 = document.getElementById('tino-logo-1');
+  if(l1) l1.src = TINO_LOGO_SRC;
+});
+
+/* ════════════════════════════════
+   DATA
+════════════════════════════════ */
+const videos = [
+  {id:'LNM9dNaxI34',cat:'festival',title:'Tinoschool Week — Live complet',desc:'Captation complète du festival Tinoschool Week',year:'2023',lieu:'Tremblay-en-France'},
+  {id:'WyjiNUHop8Q',cat:'festival',title:'Tinoschool Week 2018 — Teaser',desc:'Teaser du festival de danse Hip-Hop Tinoschool Week 2018',year:'2018',lieu:'Tremblay-en-France'},
+  {id:'vQiDdlXtGuw',cat:'spectacle',title:'Spectacle Tinoschool — Showcase',desc:'Showcase des élèves Tinoschool',year:'2022',lieu:'Tremblay-en-France'},
+  {id:'YkzJ4GM5pjo',cat:'battle',title:'Battle Tinoschool Week — Toutes catégories',desc:'Battle Hip-Hop toutes catégories lors du festival',year:'2022',lieu:'Tremblay-en-France'},
+  {id:'XDARajK7me4',cat:'festival',title:'Tinoschool Week — Ambiance & freestyle',desc:'Ambiance et freestyle lors du festival Tinoschool',year:'2021',lieu:'Tremblay-en-France'},
+  {id:'isl-Xtu0IMI',cat:'cours',title:'Cours Tinoschool — Extrait de session',desc:'Extrait de cours avec les danseurs Tinoschool',year:'2022',lieu:'Studio Tinoschool'},
+  {id:'NdTReUcegO0',cat:'spectacle',title:'Tinoschool — Spectacle annuel',desc:'Spectacle de fin d\'année des élèves de Tinoschool',year:'2021',lieu:'Tremblay-en-France'},
+  {id:'5z4W1fnK1ao',cat:'battle',title:'Battle Hip-Hop — Tinoschool Week',desc:'Battles Hip-Hop lors de la Tinoschool Week',year:'2019',lieu:'Tremblay-en-France'},
+  {id:'yJS4bzMvF1I',cat:'festival',title:'Tinoschool Week — Highlights',desc:'Les meilleurs moments du festival Tinoschool',year:'2019',lieu:'Tremblay-en-France'},
+  {id:'fSZ34u3ckDY',cat:'cours',title:'Session Hip-Hop Tinoschool',desc:'Session de danse Hip-Hop avec les élèves',year:'2020',lieu:'Studio Tinoschool'},
+  {id:'BqN-0Zg0ywE',cat:'spectacle',title:'Tinoschool — Prestation scène',desc:'Prestation scène des danseurs Tinoschool',year:'2020',lieu:'Tremblay-en-France'},
+  {id:'tGQfzi8O4LA',cat:'spectacle',title:'Paris Danse Hip-Hop 2011 — Casino de Paris',desc:'Prestation du collectif Tinoschool au Casino de Paris',year:'2011',lieu:'Casino de Paris'},
+  {id:'3Fe8JdCt1ko',cat:'battle',title:'Battle Tinoschool Week — Finale',desc:'Finale de battle lors du festival Tinoschool Week',year:'2018',lieu:'Tremblay-en-France'},
+  {id:'i2OCHHQhop8',cat:'festival',title:'Tinoschool Week — Freestyle session',desc:'Session freestyle lors du festival Tinoschool',year:'2017',lieu:'Tremblay-en-France'},
+  {id:'0zZl58_KB10',cat:'spectacle',title:'Tinoschool — Teaser 2014',desc:'Teaser du collectif Tinoschool saison 2014',year:'2014',lieu:'Tremblay-en-France'},
+  {id:'VJ7yZWIuqjc',cat:'cours',title:'Tinoschool — Cours Hip-Hop',desc:'Cours de Hip-Hop avec les élèves Tinoschool',year:'2016',lieu:'Studio Tinoschool'},
+  {id:'wmSlPbgL7Mg',cat:'battle',title:'Battle Tinoschool — New Style',desc:'Battle New Style lors de la Tinoschool Week',year:'2015',lieu:'Tremblay-en-France'},
+  {id:'JNxfJY660So',cat:'spectacle',title:'Tinoschool — Showcase scène',desc:'Showcase des danseurs Tinoschool sur scène',year:'2016',lieu:'Tremblay-en-France'},
+  {id:'aYphCUja6cc',cat:'festival',title:'Tinoschool Week — Best of',desc:'Les meilleurs moments de la Tinoschool Week',year:'2015',lieu:'Tremblay-en-France'},
+  {id:'F7CDKJXDMu8',cat:'cours',title:'Tinoschool — Séance d\'entraînement',desc:'Séance d\'entraînement des élèves Tinoschool',year:'2014',lieu:'Studio Tinoschool'},
+  {id:'XOs0h34HuO0',cat:'festival',title:'Tinoschool Week — Ouverture',desc:'Ouverture du festival Tinoschool Week',year:'2013',lieu:'Tremblay-en-France'},
+  {id:'B6B-5Ahkjd0',cat:'battle',title:'Battle Tinoschool — Locking & Popping',desc:'Battle Locking et Popping lors de la Tinoschool Week',year:'2013',lieu:'Tremblay-en-France'},
+];
+const tracks = [
+  {name:'Intro — Ouverture',style:'Hip-Hop',dur:'2:30'},
+  {name:'Chorée Enfants',style:'Jazz Rock',dur:'3:15'},
+  {name:'Showcase Ados',style:'House',dur:'4:02'},
+  {name:'Freestyle Adultes',style:'Afro / Popping',dur:'3:48'},
+  {name:'Locking Solo',style:'Locking',dur:'2:55'},
+  {name:'Finale — Ensemble',style:'Hip-Hop',dur:'5:10'},
+];
+const tracks2 = [
+  {name:'Échauffement Général',style:'Break / Stretch',dur:'8:00'},
+  {name:'Isolation Routine',style:'Popping',dur:'6:30'},
+  {name:'Cypher Flow',style:'Freestyle',dur:'7:45'},
+];
+
+/* ════════════════════════════════
+   USERS & ROLES
+   Rôles : 'membre' | 'adherent' | 'admin'
+   En prod, ceci viendrait d'une API/BDD
+════════════════════════════════ */
+let currentUser = null;
+
+// Base de membres fictifs (démo)
+let members = [
+  {id:1,name:'Tino Anoman',email:'tino@tinoschool.com',initials:'TA',role:'admin'},
+  {id:2,name:'Sabrina Coach',email:'sabrina@tinoschool.com',initials:'SC',role:'adherent'},
+  {id:3,name:'David Coach',email:'david@tinoschool.com',initials:'DC',role:'adherent'},
+  {id:4,name:'Marie Lambert',email:'marie.lambert@gmail.com',initials:'ML',role:'adherent'},
+  {id:5,name:'Lucas Martin',email:'lucas.martin@gmail.com',initials:'LM',role:'membre'},
+  {id:6,name:'Inès Dupont',email:'ines.dupont@gmail.com',initials:'ID',role:'membre'},
+];
+
+// Notifications globales
+let notifications = [];
+let sentNotifications = [];
+
+/* ════════════════════════════════
+   UPLOAD VIDÉOS
+════════════════════════════════ */
+let myVideos = [];
+let currentCat = 'freestyle';
+let selectedFile = null;
+let currentMyVidIndex = null;
+
+/* ════════════════════════════════
+   AUTH
+════════════════════════════════ */
+/* ════════════════════════════════
+   WHITELIST BÊTA — Accès restreint
+   Ajoute/supprime des emails ici pour
+   contrôler qui peut accéder à l'app.
+   Mets BETA_MODE = false pour ouvrir
+   l'accès à tous les membres Wix.
+════════════════════════════════ */
+const BETA_MODE = true;
+const BETA_WHITELIST = [
+  'tino@tinoschool.com',
+  'tinoschool.info@gmail.com',
+  'gaetan.laguerre@gmail.com',
+  'teegan.yinyangcrew@gmail.com',
+];
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  if (!el) return;
+  el.innerHTML = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 6000);
+}
+
+function login() {
+  const email = document.getElementById('f-email').value.trim().toLowerCase();
+  if (!email) { showLoginError('Entre ton adresse e-mail.'); return; }
+
+  if (BETA_MODE && !BETA_WHITELIST.map(e => e.toLowerCase()).includes(email)) {
+    showLoginError("⛔ Accès restreint — L'app est en phase de test.<br>Contacte l'équipe Tinoschool pour obtenir l'accès.");
+    return;
+  }
+
+  let found = members.find(m => m.email.toLowerCase() === email);
+  if (!found) {
+    const part  = email.split('@')[0];
+    const words = part.split(/[\.\-_]/);
+    const name  = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    const initials = words.map(w => w.charAt(0).toUpperCase()).join('').slice(0,2);
+    found = { id: Date.now(), name, email, initials, role: 'membre' };
+    members.push(found);
+  }
+  currentUser = found;
+  launchApp();
+}
+
+function launchApp() {
+  try {
+    const u = currentUser;
+    
+    // Helper sécurisé
+    function setEl(id, prop, val) {
+      var el = document.getElementById(id);
+      if (el) el[prop] = val;
+    }
+
+    setEl('user-name', 'textContent', u.name.split(' ')[0]);
+    setEl('user-ava', 'textContent', u.initials);
+    setEl('prof-name', 'textContent', u.name.toUpperCase());
+    setEl('prof-ava', 'textContent', u.initials);
+
+    var roleLabels = {admin:'⚙️ Admin', adherent:'✅ Adhérent', membre:'👤 Membre'};
+    var roleCls = {admin:'admin', adherent:'adherent', membre:'membre'};
+    setEl('prof-role-badge', 'innerHTML',
+      '<span class="role-badge ' + (roleCls[u.role]||'membre') + '">' + (roleLabels[u.role]||'Membre') + '</span>');
+    setEl('prof-stat-cotis', 'textContent', (u.role === 'adherent' || u.role === 'admin') ? '✓' : '—');
+
+    if (u.role === 'admin') {
+      var ab = document.getElementById('admin-btn');
+      if (ab) ab.classList.add('show');
+    }
+
+    applyLocks();
+
+    // Masquer splash, afficher app
+    var splash = document.getElementById('splash');
+    var app = document.getElementById('app');
+    var nav = document.getElementById('bottom-nav');
+    if (splash) splash.style.display = 'none';
+    if (app) { app.style.display = 'flex'; app.style.flexDirection = 'column'; }
+    if (nav) nav.classList.add('show');
+
+    buildVideos('all');
+    buildTracks();
+    renderNotifs();
+    if (u.role === 'admin') renderAdminMembers();
+
+    setTimeout(function() {
+      try { loadGoogleCalendar(); }
+      catch(e) {
+        var el = document.getElementById('agenda-events');
+        if (el) el.innerHTML = agendaStatique();
+      }
+    }, 800);
+
+  } catch(err) {
+    console.error('launchApp error:', err);
+    // Fallback : afficher l'app quand même
+    var splash = document.getElementById('splash');
+    var app = document.getElementById('app');
+    var nav = document.getElementById('bottom-nav');
+    if (splash) splash.style.display = 'none';
+    if (app) { app.style.display = 'flex'; app.style.flexDirection = 'column'; }
+    if (nav) nav.classList.add('show');
+  }
+}
+
+function applyLocks() {
+  const isRestricted = currentUser.role === 'membre';
+  // Vidéos perso
+  document.getElementById('mine-locked-overlay').style.display = isRestricted ? 'flex' : 'none';
+  // Musique
+  document.getElementById('music-locked-overlay').style.display = isRestricted ? 'flex' : 'none';
+  // Hauteur minimale pour l'overlay
+  if (isRestricted) {
+    document.getElementById('mine-locked-wrap').style.minHeight = '280px';
+    document.getElementById('music-locked-wrap').style.minHeight = '320px';
+  }
+}
+
+function logout() {
+  currentUser = null;
+  document.getElementById('splash').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('bottom-nav').classList.remove('show');
+  document.getElementById('admin-btn').classList.remove('show');
+  document.getElementById('f-email').value = '';
+  document.getElementById('f-pwd').value = '';
+  stopMusic();
+}
+
+/* Détection iFrame Wix */
+function checkIframeMode() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get('name'), role = params.get('role') || 'membre';
+    if (name) {
+      const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      currentUser = {id:Date.now(),name,initials,role,email:''};
+      launchApp();
+      return;
+    }
+  } catch(e) {}
+  window.addEventListener('message', e => {
+    if (e.data && e.data.type === 'TINO_LOGIN') {
+      currentUser = {
+        id: Date.now(),
+        name: e.data.name || 'Danseur',
+        initials: (e.data.initials || e.data.name.slice(0,2)).toUpperCase(),
+        role: e.data.role || 'membre',
+        email: e.data.email || ''
+      };
+      launchApp();
+    }
+  });
+}
+document.addEventListener('DOMContentLoaded', checkIframeMode);
+
+/* ════════════════════════════════
+   NAVIGATION
+════════════════════════════════ */
+function goPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const page = document.getElementById('page-' + name);
+  if (page) page.classList.add('active');
+  const btn = document.querySelector(`.nav-btn[onclick="goPage('${name}')"]`);
+  if (btn) btn.classList.add('active');
+  if (name !== 'videos') document.getElementById('fab-upload').classList.remove('show');
+  if (name === 'notifs') markNotifsRead();
+  window.scrollTo(0,0);
+}
+
+/* ════════════════════════════════
+   VIDEOS ÉCOLE
+════════════════════════════════ */
+function buildVideos(filter) {
+  const grid = document.getElementById('video-grid');
+  const list = filter === 'all' ? videos : videos.filter(v => v.cat === filter);
+  grid.innerHTML = list.map(v => `
+    <div class="video-card" onclick="openVideo('${v.id}','${v.title}','${v.desc}')">
+      <div class="video-thumb">
+        <img src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg"
+             style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display='none'">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+          <div class="play-btn">▶</div>
+        </div>
+      </div>
+      <div class="video-info">
+        <div class="video-cat">${v.cat}</div>
+        <div class="video-title">${v.title}</div>
+        <div class="video-meta"><span>📅 ${v.year}</span><span>📍 ${v.lieu}</span></div>
+      </div>
+    </div>`).join('');
+}
+
+function switchVideoTab(tab, btn) {
+  document.querySelectorAll('#page-videos > .video-tabs .vtab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-school').style.display = tab === 'school' ? 'block' : 'none';
+  document.getElementById('tab-mine').style.display = tab === 'mine' ? 'block' : 'none';
+  if (tab === 'mine') document.getElementById('fab-upload').classList.add('show');
+  else document.getElementById('fab-upload').classList.remove('show');
+}
+
+function filterVideos(cat, btn) {
+  btn.closest('.video-tabs').querySelectorAll('.vtab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  buildVideos(cat);
+}
+
+function openVideo(id, title, desc) {
+  document.getElementById('modal-iframe').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-desc').textContent = desc;
+  document.getElementById('video-modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('video-modal').classList.remove('open');
+  document.getElementById('modal-iframe').src = '';
+}
+
+/* ════════════════════════════════
+   UPLOAD MODAL & FORMULAIRE
+════════════════════════════════ */
+function openUploadModal() {
+  if (currentUser && currentUser.role === 'membre') return;
+  document.getElementById('upload-modal').classList.add('open');
+}
+function closeUploadModal() {
+  document.getElementById('upload-modal').classList.remove('open');
+  document.getElementById('upload-err').style.display = 'none';
+  document.getElementById('file-preview').innerHTML = '<span style="font-size:24px">📁</span><div style="font-size:12px;color:var(--muted);margin-top:4px">Appuyer pour choisir</div>';
+  selectedFile = null;
+  document.getElementById('video-file-input').value = '';
+}
+
+function selectCat(cat) {
+  currentCat = cat;
+  document.getElementById('cat-freestyle').classList.toggle('active', cat === 'freestyle');
+  document.getElementById('cat-choregraphie').classList.toggle('active', cat === 'choregraphie');
+  document.getElementById('fields-freestyle').style.display = cat === 'freestyle' ? 'block' : 'none';
+  document.getElementById('fields-choregraphie').style.display = cat === 'choregraphie' ? 'block' : 'none';
+}
+
+function previewFile(file) {
+  if (!file) return;
+  selectedFile = file;
+  document.getElementById('file-preview').innerHTML = `
+    <span style="font-size:24px">✅</span>
+    <div style="font-size:13px;font-weight:500;color:var(--white);margin-top:4px">${file.name}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:2px">${formatSize(file.size)}</div>`;
+}
+
+function submitUpload() {
+  const err = document.getElementById('upload-err');
+  err.style.display = 'none';
+  const cours = document.getElementById('up-cours').value;
+  if (!cours) { showErr('Choisis un cours.'); return; }
+  if (currentCat === 'freestyle' && !document.getElementById('up-eleve').value.trim()) {
+    showErr('Indique le nom de l\'élève.'); return;
+  }
+  if (currentCat === 'choregraphie' && !document.getElementById('up-choree').value) {
+    showErr('Choisis la chorégraphie.'); return;
+  }
+  if (!selectedFile) { showErr('Sélectionne un fichier vidéo.'); return; }
+  closeUploadModal();
+  processUpload(selectedFile, {
+    cours,
+    cat: currentCat,
+    eleve: document.getElementById('up-eleve').value.trim(),
+    annee: document.getElementById('up-annee').value,
+    choree: document.getElementById('up-choree').value,
+  });
+}
+
+function showErr(msg) {
+  const el = document.getElementById('upload-err');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function processUpload(file, meta) {
+  const progress = document.getElementById('upload-progress');
+  const fill = document.getElementById('progress-fill');
+  const pct = document.getElementById('up-percent');
+  const fname = document.getElementById('up-filename');
+  progress.classList.add('show');
+  fname.textContent = file.name;
+  fill.style.width = '0%'; pct.textContent = '0%';
+  let fake = 0;
+  const interval = setInterval(() => {
+    fake = Math.min(fake + Math.random()*12, 90);
+    fill.style.width = fake + '%'; pct.textContent = Math.floor(fake) + '%';
+  }, 120);
+  const reader = new FileReader();
+  reader.onload = e => {
+    clearInterval(interval);
+    fill.style.width = '100%'; pct.textContent = '100%';
+    const name = meta.cat === 'choregraphie' ? meta.choree : (meta.eleve + ' — Freestyle');
+    myVideos.unshift({
+      id: Date.now(), name,
+      url: e.target.result,
+      date: new Date().toLocaleDateString('fr-FR'),
+      size: formatSize(file.size),
+      cat: meta.cat,
+      cours: meta.cours,
+      eleve: meta.eleve || '',
+      annee: meta.annee || '',
+      choree: meta.choree || '',
+    });
+    setTimeout(() => { progress.classList.remove('show'); renderMyVideos(); }, 500);
+    // Afficher filtres
+    document.getElementById('my-vid-filters').style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(0) + ' Ko';
+  return (bytes/(1024*1024)).toFixed(1) + ' Mo';
+}
+
+/* ════════════════════════════════
+   MES VIDÉOS
+════════════════════════════════ */
+let myVideoFilter = 'all';
+function filterMyVideos(cat, btn) {
+  myVideoFilter = cat;
+  btn.closest('.video-tabs').querySelectorAll('.vtab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderMyVideos();
+}
+
+function renderMyVideos() {
+  const list = document.getElementById('my-vid-list');
+  const count = document.getElementById('my-vid-count');
+  const filtered = myVideoFilter === 'all' ? myVideos : myVideos.filter(v => v.cat === myVideoFilter);
+  count.textContent = filtered.length + (filtered.length > 1 ? ' vidéos' : ' vidéo');
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state"><span class="empty-ico">📹</span><p>Aucune vidéo pour l\'instant.<br>Filme ta chorégraphie et téléverse-la ici !</p></div>';
+    return;
+  }
+  list.innerHTML = filtered.map((v,i) => `
+    <div class="my-vid-card">
+      <div class="my-vid-thumb" onclick="openMyVideo(${myVideos.indexOf(v)})">
+        <video src="${v.url}" preload="metadata" muted style="width:100%;height:100%;object-fit:cover;display:block"></video>
+        <div class="my-vid-overlay"><div class="my-play-btn">▶</div></div>
+      </div>
+      <div class="my-vid-info">
+        <div class="my-vid-text">
+          <div class="my-vid-name">${v.name}</div>
+          <div class="my-vid-meta">📅 ${v.date} · 💾 ${v.size}</div>
+          <div class="my-vid-tags">
+            <span class="my-vid-tag cat-${v.cat}">${v.cat === 'freestyle' ? '🕺 Freestyle' : '💃 Chorée'}</span>
+            <span class="my-vid-tag">${v.cours}</span>
+            ${v.annee ? `<span class="my-vid-tag">${v.annee}</span>` : ''}
+          </div>
+        </div>
+        <button class="my-vid-del" onclick="deleteMyVideo(${myVideos.indexOf(v)})">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+function openMyVideo(i) {
+  const v = myVideos[i];
+  const vid = document.getElementById('my-modal-vid');
+  vid.src = v.url; vid.play();
+  document.getElementById('my-modal-title').textContent = v.name;
+  document.getElementById('my-modal-sub').textContent =
+    (v.cat === 'freestyle' ? 'Freestyle' : 'Chorégraphie') + ' · ' + v.cours + ' · ' + v.date;
+  document.getElementById('my-vid-modal').classList.add('open');
+}
+function closeMyModal() {
+  const vid = document.getElementById('my-modal-vid');
+  vid.pause(); vid.src = '';
+  document.getElementById('my-vid-modal').classList.remove('open');
+}
+function deleteMyVideo(i) {
+  if (!confirm('Supprimer cette vidéo ?')) return;
+  myVideos.splice(i,1); renderMyVideos();
+}
+
+/* ════════════════════════════════
+   MUSIQUE
+════════════════════════════════ */
+function buildTracks() {
+  document.getElementById('tracklist').innerHTML = tracks.map((t,i) => `
+    <div class="track-row" onclick="playTrack(${i},this,'${t.name}','${t.style}')">
+      <div class="tr-num">${i+1}</div><div class="tr-disc">🎵</div>
+      <div class="tr-info"><div class="tr-name">${t.name}</div><div class="tr-style">${t.style}</div></div>
+      <div class="tr-dur">${t.dur}</div>
+    </div>`).join('');
+  document.getElementById('tracklist2').innerHTML = tracks2.map((t,i) => `
+    <div class="track-row" onclick="playTrack(${i},this,'${t.name}','${t.style}')">
+      <div class="tr-num">—</div><div class="tr-disc">🔥</div>
+      <div class="tr-info"><div class="tr-name">${t.name}</div><div class="tr-style">${t.style}</div></div>
+      <div class="tr-dur">${t.dur}</div>
+    </div>`).join('');
+}
+
+function playTrack(i, el, name, style) {
+  if (currentUser && currentUser.role === 'membre') return;
+  document.querySelectorAll('.track-row').forEach(r => r.classList.remove('playing'));
+  el.classList.add('playing');
+  document.getElementById('mini-trk-name').textContent = name;
+  document.getElementById('mini-trk-style').textContent = style;
+  document.getElementById('mini-player').classList.add('on');
+}
+function stopMusic() {
+  document.querySelectorAll('.track-row').forEach(r => r.classList.remove('playing'));
+  document.getElementById('mini-player').classList.remove('on');
+}
+
+/* ════════════════════════════════
+   CONFIG API — REMPLACE ICI TES CLÉS
+   Avant de déployer sur Netlify :
+   1. Remplace GOOGLE_CALENDAR_API_KEY par ta vraie clé Google
+   2. Remplace BREVO_API_KEY par ta vraie clé Brevo
+════════════════════════════════ */
+const CONFIG = {
+  GOOGLE_CALENDAR_ID: 'tinoschool.info@gmail.com',
+  GOOGLE_CALENDAR_API_KEY: 'GOOGLE_API_KEY_ICI',
+  BREVO_API_KEY: 'BREVO_API_KEY_ICI',
+  BREVO_SENDER_EMAIL: 'tinoschool.info@gmail.com',
+  BREVO_SENDER_NAME: 'Tinoschool',
+};
+
+/* ════════════════════════════════
+   LISTE EMAILS MEMBRES
+   Septembre 2026 : remplace cette liste
+   par les vrais emails de tes adhérents
+════════════════════════════════ */
+const emailLists = {
+  // Adhérents (accès complet)
+  adherent: [
+    { email: 'gaetan.laguerre@gmail.com',      name: 'Gaëtan Laguerre' },
+    { email: 'teegan.yinyangcrew@gmail.com',    name: 'Teegan Yin Yang' },
+  ],
+  // Membres simples
+  membre: [],
+};
+
+// Tous les destinataires combinés
+function getRecipients(target) {
+  if (target === 'adherent') return emailLists.adherent;
+  if (target === 'membre')   return emailLists.membre;
+  return [...emailLists.adherent, ...emailLists.membre]; // 'all'
+}
+
+/* ════════════════════════════════
+   GOOGLE CALENDAR
+════════════════════════════════ */
+async function loadGoogleCalendar() {
+  const agendaEl = document.getElementById('agenda-events');
+  if (!agendaEl) return;
+
+  // Affiche un loader pendant le chargement
+  agendaEl.innerHTML = `
+    <div style="text-align:center;padding:32px;color:var(--muted)">
+      <div style="font-size:32px;margin-bottom:8px">📅</div>
+      <div style="font-size:13px">Chargement de l'agenda…</div>
+    </div>`;
+
+  try {
+    const now    = new Date().toISOString();
+    const future = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(); // +90 jours
+    const url    = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CONFIG.GOOGLE_CALENDAR_ID)}/events`
+      + `?key=${CONFIG.GOOGLE_CALENDAR_API_KEY}`
+      + `&timeMin=${now}&timeMax=${future}`
+      + `&singleEvents=true&orderBy=startTime&maxResults=20`;
+
+    const res  = await fetch(url);
+    const data = await res.json();
+
+    if (data.error) throw new Error(data.error.message);
+    if (!data.items || data.items.length === 0) {
+      agendaEl.innerHTML = `<div class="empty-state"><span class="empty-ico">📅</span><p>Aucun événement à venir.</p></div>`;
+      return;
+    }
+
+    // Groupe par mois
+    const byMonth = {};
+    data.items.forEach(ev => {
+      const start  = new Date(ev.start.dateTime || ev.start.date);
+      const key    = start.toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+      if (!byMonth[key]) byMonth[key] = [];
+      byMonth[key].push({ ev, start });
+    });
+
+    let html = '';
+    for (const [month, evts] of Object.entries(byMonth)) {
+      html += `<div class="month-head">${month.toUpperCase()}</div>`;
+      evts.forEach(({ ev, start }) => {
+        const day   = start.getDate().toString().padStart(2,'0');
+        const mo    = start.toLocaleString('fr-FR', { month: 'short' }).toUpperCase();
+        const heure = ev.start.dateTime
+          ? start.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+          : 'Toute la journée';
+        const lieu  = ev.location ? `<span>📍 ${ev.location}</span>` : '';
+        const desc  = ev.description ? `<div style="font-size:12px;color:var(--muted);margin-top:6px">${ev.description}</div>` : '';
+        html += `
+          <div class="event-row">
+            <div class="event-date"><div class="ev-day">${day}</div><div class="ev-mo">${mo}</div></div>
+            <div class="ev-sep"></div>
+            <div class="ev-body">
+              <div class="ev-tag">Tinoschool</div>
+              <div class="ev-name">${ev.summary || 'Événement'}</div>
+              <div class="ev-details"><span>🕐 ${heure}</span>${lieu}</div>
+              ${desc}
+            </div>
+          </div>`;
+      });
+    }
+    agendaEl.innerHTML = html;
+
+  } catch (err) {
+    console.error('Google Calendar error:', err);
+    // Fallback : affiche l'agenda statique si l'API échoue
+    agendaEl.innerHTML = `
+      <div style="background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.2);border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#ff8080">
+        ⚠️ Impossible de charger le calendrier en ligne. Vérifie que la clé API est bien renseignée et que le calendrier est public.
+      </div>
+      ${agendaStatique()}`;
+  }
+}
+
+// Agenda statique de secours
+function agendaStatique() {
+  return `
+    <div class="month-head">MAI 2026</div>
+    <div class="event-row">
+      <div class="event-date"><div class="ev-day">24</div><div class="ev-mo">MAI</div></div>
+      <div class="ev-sep"></div>
+      <div class="ev-body">
+        <div class="ev-tag">Cours régulier</div>
+        <div class="ev-name">Hip-Hop 8–12 ans</div>
+        <div class="ev-details"><span>🕔 16h30–17h30</span><span>📍 Tremblay-en-France</span></div>
+      </div>
+    </div>
+    <div class="event-row">
+      <div class="event-date"><div class="ev-day">31</div><div class="ev-mo">MAI</div></div>
+      <div class="ev-sep"></div>
+      <div class="ev-body">
+        <div class="ev-tag">Répétition</div>
+        <div class="ev-name">Répétition Spectacle Fin d'Année</div>
+        <div class="ev-details"><span>🕒 15h00–18h00</span><span>📍 Tremblay-en-France</span></div>
+        <div class="ev-badge red">Obligatoire</div>
+      </div>
+    </div>
+    <div class="month-head" style="margin-top:16px">JUIN 2026</div>
+    <div class="event-row">
+      <div class="event-date"><div class="ev-day">07</div><div class="ev-mo">JUIN</div></div>
+      <div class="ev-sep"></div>
+      <div class="ev-body">
+        <div class="ev-tag">Festival</div>
+        <div class="ev-name">🏆 Tinoschool Week</div>
+        <div class="ev-details"><span>🕙 Toute la journée</span><span>📍 Tremblay-en-France</span></div>
+        <div class="ev-badge">Grand événement</div>
+      </div>
+    </div>
+    <div class="event-row">
+      <div class="event-date"><div class="ev-day">21</div><div class="ev-mo">JUIN</div></div>
+      <div class="ev-sep"></div>
+      <div class="ev-body">
+        <div class="ev-tag">Spectacle</div>
+        <div class="ev-name">🌟 Spectacle de Fin d'Année</div>
+        <div class="ev-details"><span>🕗 19h30</span><span>📍 Tremblay-en-France</span></div>
+        <div class="ev-badge">Soirée de gala</div>
+      </div>
+    </div>`;
+}
+
+/* ════════════════════════════════
+   NOTIFICATIONS IN-APP
+════════════════════════════════ */
+function renderNotifs() {
+  const list = document.getElementById('notifs-list');
+  if (notifications.length === 0) {
+    list.innerHTML = '<div class="empty-state"><span class="empty-ico">🔔</span><p>Aucune notification pour l\'instant.</p></div>';
+    return;
+  }
+  list.innerHTML = notifications.map(n => `
+    <div class="notif-row ${n.read ? '' : 'unread'}">
+      <div class="notif-dot ${n.read ? 'read' : ''}"></div>
+      <div class="notif-content">
+        <div class="notif-text">${n.msg}</div>
+        <div class="notif-time">${n.time} · De l'équipe Tinoschool</div>
+      </div>
+    </div>`).join('');
+  updateNotifBadge();
+}
+
+function markNotifsRead() {
+  notifications.forEach(n => n.read = true);
+  updateNotifBadge();
+  renderNotifs();
+}
+
+function updateNotifBadge() {
+  const unread = notifications.filter(n => !n.read).length;
+  const badge  = document.getElementById('notif-count');
+  badge.textContent = unread;
+  badge.classList.toggle('show', unread > 0);
+}
+
+/* ════════════════════════════════
+   ADMIN
+════════════════════════════════ */
+function renderAdminMembers() {
+  const list = document.getElementById('admin-members-list');
+  list.innerHTML = members.map(m => `
+    <div class="member-row">
+      <div class="member-ava">${m.initials}</div>
+      <div class="member-info">
+        <div class="member-name">${m.name}</div>
+        <div class="member-email">${m.email}</div>
+      </div>
+      <select class="role-select" onchange="changeRole(${m.id}, this.value)">
+        <option value="membre"   ${m.role==='membre'   ?'selected':''}>Membre</option>
+        <option value="adherent" ${m.role==='adherent' ?'selected':''}>Adhérent</option>
+        <option value="admin"    ${m.role==='admin'    ?'selected':''}>Admin</option>
+      </select>
+    </div>`).join('');
+}
+
+function changeRole(id, role) {
+  const m = members.find(m => m.id === id);
+  if (!m) return;
+  m.role = role;
+  if (currentUser && currentUser.id === id) { currentUser.role = role; applyLocks(); }
+  if (currentUser && currentUser.role === 'admin') renderAdminMembers();
+}
+
+/* ── ENVOI NOTIFICATION : in-app + email Brevo ── */
+async function sendNotification() {
+  const msg = document.getElementById('notif-msg').value.trim();
+  if (!msg) { alert('Écris un message avant d\'envoyer.'); return; }
+
+  const activeTarget = document.querySelector('.target-chip.active');
+  const target       = activeTarget ? activeTarget.dataset.target : 'all';
+  const time         = new Date().toLocaleString('fr-FR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const recipients   = getRecipients(target);
+
+  // 1. Ajout in-app (visible immédiatement)
+  notifications.unshift({ msg, target, time, read: false });
+  sentNotifications.unshift({ msg, target, time, recipients: recipients.length });
+  renderSentNotifs();
+  updateNotifBadge();
+
+  // 2. Envoi email via Brevo
+  const sendBtn = document.querySelector('#page-admin .btn-primary');
+  sendBtn.textContent = '⏳ Envoi en cours…';
+  sendBtn.disabled = true;
+
+  try {
+    await sendBrevoEmail(msg, recipients, target);
+    document.getElementById('notif-msg').value = '';
+    alert(`✅ Notification envoyée !\n📧 ${recipients.length} email(s) envoyé(s).`);
+  } catch (err) {
+    console.error('Brevo error:', err);
+    alert(`✅ Notification in-app envoyée.\n⚠️ Email non envoyé : ${err.message}\n\nVérifie ta clé Brevo.`);
+  } finally {
+    sendBtn.textContent = '📤 Envoyer';
+    sendBtn.disabled = false;
+  }
+}
+
+async function sendBrevoEmail(msg, recipients, target) {
+  if (recipients.length === 0) return;
+
+  const targetLabels = { all: 'Tous les membres', adherent: 'Adhérents', membre: 'Membres' };
+
+  // Brevo : envoi en masse via "to" (jusqu'à 50 destinataires par appel)
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'api-key': CONFIG.BREVO_API_KEY,
+    },
+    body: JSON.stringify({
+      sender: {
+        name:  CONFIG.BREVO_SENDER_NAME,
+        email: CONFIG.BREVO_SENDER_EMAIL,
+      },
+      to: recipients.map(r => ({ email: r.email, name: r.name })),
+      subject: `📢 Message de Tinoschool — ${new Date().toLocaleDateString('fr-FR')}`,
+      htmlContent: `
+        <div style="background:#0a0a0a;padding:40px 20px;font-family:sans-serif;max-width:600px;margin:0 auto">
+          <img id="tino-logo-1" class="tino-logo" alt="Tinoschool">
+          <div style="background:#181818;border-radius:12px;padding:28px;border:1px solid rgba(255,255,255,0.07)">
+            <p style="color:#FFD000;font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px">
+              MESSAGE DE L'ÉCOLE
+            </p>
+            <p style="color:#f0f0f0;font-size:16px;line-height:1.7;margin:0">${msg.replace(/\n/g,'<br>')}</p>
+          </div>
+          <p style="color:#666;font-size:12px;margin-top:24px;text-align:center">
+            Destinataires : ${targetLabels[target] || 'Tous'}<br>
+            Tinoschool · Yin Yang Assoc' · 93290 Tremblay-en-France<br>
+            <a href="https://www.tinoschool.com" style="color:#FFD000">www.tinoschool.com</a>
+          </p>
+        </div>`,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || `Erreur HTTP ${res.status}`);
+  }
+}
+
+function renderSentNotifs() {
+  const list = document.getElementById('sent-notifs-list');
+  if (sentNotifications.length === 0) {
+    list.innerHTML = '<div class="empty-state"><span class="empty-ico" style="font-size:32px">📭</span><p>Aucune notification envoyée.</p></div>';
+    return;
+  }
+  const targetLabels = { all:'Tous', adherent:'Adhérents', membre:'Membres' };
+  list.innerHTML = sentNotifications.map(n => `
+    <div class="sent-notif-row">
+      <div class="sent-notif-dot"></div>
+      <div class="sent-notif-body">
+        <div class="sent-notif-msg">${n.msg}</div>
+        <div class="sent-notif-meta">${n.time} · ${targetLabels[n.target]||'Tous'} · 📧 ${n.recipients || 0} email(s)</div>
+      </div>
+    </div>`).join('');
+}
+
+// Chips destinataires (sélection exclusive)
+document.querySelectorAll('.target-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.target-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+  });
+});
+
+/* Enter key login */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const splash = document.getElementById('splash');
+    if (splash && splash.style.display !== 'none') login();
+  }
+});
+</script>
+</body>
+</html>
