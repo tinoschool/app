@@ -1256,19 +1256,35 @@ async function buildAdminMembers(){
   
   container.innerHTML = adminMembersList.map(function(m){
     var isProtected = m.email === 'tinoschool.info@gmail.com';
-    var sel = isProtected || !isMasterAdmin
-      ? '<span class="role-pill '+(m.role||'membre')+'" style="font-size:10px;padding:3px 10px">'+(roleLabels[m.role]||'👤 Membre')+'</span>'
-      : '<select class="role-sel" onchange="changeRole(\''+m.id+'\',this.value)">'
-        +'<option value="membre"'+(m.role==='membre'?' selected':'')+'>👤 Membre</option>'
-        +'<option value="adherent"'+(m.role==='adherent'?' selected':'')+'>✅ Adhérent</option>'
-        +'<option value="admin"'+(m.role==='admin'?' selected':'')+'>⚙️ Admin</option>'
+    var currentRole = m.role || 'membre';
+    var roleColor = {admin:'#ff6b6b', adherent:'#44cc88', membre:'#FFD000'};
+    var roleLabel = {admin:'⚙️ Admin', adherent:'✅ Adhérent', membre:'👤 Membre'};
+    var initials = m.initials || (m.name||m.email).slice(0,2).toUpperCase();
+
+    var roleWidget = '';
+    if (isProtected || !isMasterAdmin) {
+      // Afficher badge non modifiable
+      roleWidget = '<span style="padding:4px 12px;border-radius:20px;font-size:10px;letter-spacing:1px;'
+        +'background:rgba(255,208,0,.1);color:'+roleColor[currentRole]+';border:1px solid '+roleColor[currentRole]+'33">'
+        +roleLabel[currentRole]+'</span>';
+    } else {
+      // Select modifiable
+      roleWidget = '<select class="role-sel" onchange="changeRole(\'' + m.id + '\',this.value)" style="min-width:110px">'
+        +'<option value="membre"'+(currentRole==='membre'?' selected':'')+'>👤 Membre</option>'
+        +'<option value="adherent"'+(currentRole==='adherent'?' selected':'')+'>✅ Adhérent</option>'
+        +'<option value="admin"'+(currentRole==='admin'?' selected':'')+'>⚙️ Admin</option>'
         +'</select>';
-    return '<div class="mrow-admin">'
-      +'<div class="mrow-ava">'+(m.initials||m.name.slice(0,2).toUpperCase())+'</div>'
-      +'<div class="mrow-info">'
-        +'<div class="mrow-nm">'+(m.name||m.email)+(isProtected?' 👑':'')+'</div>'
+    }
+
+    return '<div class="mrow-admin" style="flex-wrap:nowrap">'
+      +'<div class="mrow-ava" style="background:'+(isProtected?'#FFD000':'#333')+';color:'+(isProtected?'#000':'#fff')+'">'
+        +initials+'</div>'
+      +'<div class="mrow-info" style="min-width:0">'
+        +'<div class="mrow-nm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
+          +(m.name||m.email)+(isProtected?' 👑':'')+'</div>'
         +'<div class="mrow-em">'+m.email+'</div>'
-      +'</div>'+sel+'</div>';
+      +'</div>'
+      +roleWidget+'</div>';
   }).join('');
 }
 async function changeRole(id, role) {
