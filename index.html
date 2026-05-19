@@ -327,6 +327,7 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
     <div class="sec-s">Spectacles · Festival · Mes entraînements</div>
     <div class="vtabs" id="main-vtabs">
       <button class="vtab active" onclick="switchTab('school',this)">🏫 École</button>
+      <button class="vtab" onclick="switchTab('community',this)">👥 Nos vidéos</button>
       <button class="vtab" onclick="switchTab('mine',this)">📱 Mes vidéos</button>
     </div>
     <div id="tab-school">
@@ -339,6 +340,34 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
       </div>
       <div class="vgrid" id="vgrid"></div>
     </div>
+    <!-- ONGLET NOS VIDÉOS — toutes les vidéos des adhérents -->
+    <div id="tab-community" style="display:none">
+      <div class="locked" id="community-wrap">
+        <div id="community-content">
+          <!-- Filtres -->
+          <div class="vtabs" id="community-filters" style="margin-bottom:14px">
+            <button class="vtab active" onclick="filterCommunity('all',this)">Tout</button>
+            <button class="vtab" onclick="filterCommunity('freestyle',this)">Freestyle</button>
+            <button class="vtab" onclick="filterCommunity('choregraphie',this)">Chorégraphie</button>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px">Vidéos de l'association</span>
+            <span style="font-size:11px;color:#FFD000" id="community-count">0 vidéo</span>
+          </div>
+          <div id="community-vid-list">
+            <div class="empty"><span class="empty-ico">🎬</span><p>Chargement des vidéos…</p></div>
+          </div>
+        </div>
+        <!-- Overlay pour membres simples -->
+        <div class="lock-overlay" id="community-lock" style="display:none">
+          <div class="lock-icon">🔒</div>
+          <div class="lock-title">Accès Adhérents</div>
+          <div class="lock-desc">Les vidéos de l'association sont réservées aux adhérents.</div>
+          <div class="lock-pill">Réserver votre abonnement</div>
+        </div>
+      </div>
+    </div>
+
     <div id="tab-mine" style="display:none">
       <div class="locked" id="mine-wrap">
         <div id="mine-content">
@@ -723,11 +752,115 @@ async function uploadToCloudinary(file, folder) {
   return await res.json();
 }
 
+// ── COMMUNITY VIDEOS — toutes les vidéos adhérents ──
+var communityVideos = [];
+var communityFilter = 'all';
+
+async function loadCommunityVideos() {
+  var listEl = document.getElementById('community-vid-list');
+  var countEl = document.getElementById('community-count');
+  if(!listEl) return;
+  listEl.innerHTML = '<div class="empty"><span class="empty-ico" style="font-size:28px">⏳</span><p>Chargement…</p></div>';
+
+  try {
+    var data = await dbSelect('videos', '');
+    if(Array.isArray(data)) {
+      communityVideos = data.map(function(v){
+        return {
+          id: v.id,
+          name: v.name,
+          url: v.url,
+          cat: v.cat,
+          cours: v.cours,
+          eleve: v.eleve || '',
+          annee: v.annee || '',
+          choree: v.choree || '',
+          size: v.size || '',
+          user_name: v.user_name || 'Anonyme',
+          user_email: v.user_email || '',
+          date: new Date(v.created_at).toLocaleDateString('fr-FR'),
+          supa_id: v.id
+        };
+      });
+      renderCommunityVideos();
+    }
+  } catch(e) {
+    listEl.innerHTML = '<div class="empty"><span class="empty-ico">⚠️</span><p>Impossible de charger les vidéos.</p></div>';
+  }
+}
+
+function filterCommunity(cat, btn) {
+  communityFilter = cat;
+  var btns = document.getElementById('community-filters').querySelectorAll('.vtab');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+  renderCommunityVideos();
+}
+
+function renderCommunityVideos() {
+  var list = document.getElementById('community-vid-list');
+  var count = document.getElementById('community-count');
+  var filtered = communityFilter==='all' ? communityVideos
+    : communityVideos.filter(function(v){ return v.cat===communityFilter; });
+
+  count.textContent = filtered.length + (filtered.length > 1 ? ' vidéos' : ' vidéo');
+
+  if(!filtered.length) {
+    list.innerHTML = '<div class="empty"><span class="empty-ico">🎬</span><p>Aucune vidéo pour l\'instant.<br>Les adhérents peuvent en uploader !</p></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(function(v, i) {
+    var idx = communityVideos.indexOf(v);
+    // Peut supprimer si c'est sa propre vidéo ou si admin
+    var canDelete = currentUser && (currentUser.email === v.user_email || currentUser.role === 'admin');
+    return '<div class="my-vid-card">'
+      +'<div class="my-vid-thumb" onclick="openCommunityVid('+idx+')">'
+      +'<video src="'+v.url+'" preload="metadata" muted style="width:100%;height:100%;object-fit:cover;display:block"></video>'
+      +'<div class="my-vid-ov"><div class="my-play">▶</div></div></div>'
+      +'<div class="my-vid-info">'
+        +'<div class="my-vid-txt">'
+          +'<div class="my-vid-nm">'+v.name+'</div>'
+          +'<div class="my-vid-mt">👤 '+v.user_name+' · 📅 '+v.date+'</div>'
+          +'<div class="my-vid-tags">'
+            +'<span class="my-tag '+(v.cat==='choregraphie'?'chor':'')+'">'+v.cat+'</span>'
+            +'<span class="my-tag">'+v.cours+'</span>'
+            +(v.annee?'<span class="my-tag">'+v.annee+'</span>':'')
+          +'</div>'
+        +'</div>'
+        +(canDelete?'<button class="del-btn" onclick="deleteCommunityVid('+idx+')">🗑</button>':'')
+      +'</div></div>';
+  }).join('');
+}
+
+function openCommunityVid(i) {
+  var v = communityVideos[i];
+  var vid = document.getElementById('my-modal-vid');
+  vid.src = v.url; vid.play();
+  document.getElementById('my-modal-nm').textContent = v.name;
+  document.getElementById('my-modal-sub').textContent = v.cat+' · '+v.cours+' · Par '+v.user_name+' · '+v.date;
+  document.getElementById('my-modal').classList.add('open');
+}
+
+async function deleteCommunityVid(i) {
+  if(!confirm('Supprimer cette vidéo ?')) return;
+  var v = communityVideos[i];
+  try {
+    if(v.supa_id) await dbDelete('videos', v.supa_id);
+    communityVideos.splice(i, 1);
+    renderCommunityVideos();
+  } catch(e) { alert('Erreur suppression : '+e.message); }
+}
+
 // ── LOAD MY VIDEOS FROM SUPABASE ──
 async function loadMyVideos() {
   if (!currentUser) return;
   try {
-    var data = await dbSelect('videos', 'user_email=eq.' + encodeURIComponent(currentUser.email));
+    // Admin voit toutes les vidéos, adhérent voit seulement les siennes
+    var filter = currentUser.role === 'admin'
+      ? ''
+      : 'user_email=eq.' + encodeURIComponent(currentUser.email);
+    var data = await dbSelect('videos', filter);
     if (Array.isArray(data)) {
       myVideos = data.map(function(v) {
         return {
@@ -926,9 +1059,13 @@ function startApp() {
   if (u.role==='admin') document.getElementById('admin-btn').classList.add('show');
   // locks
   // Membre : accès vidéos école + musiques publiques (Spotify/SoundCloud)
-  // Adhérent : + vidéos perso + musiques uploadées
-  document.getElementById('mine-lock').style.display = u.role==='membre' ? 'flex' : 'none';
-  document.getElementById('music-private-lock').style.display = u.role==='membre' ? 'flex' : 'none';
+  // Adhérent : + vidéos perso + musiques uploadées + nos vidéos
+  // Seuls les membres simples sont restreints
+  // Adhérents ET admins ont accès à tout
+  var isRestricted = u.role === 'membre';
+  document.getElementById('mine-lock').style.display = isRestricted ? 'flex' : 'none';
+  document.getElementById('music-private-lock').style.display = isRestricted ? 'flex' : 'none';
+  document.getElementById('community-lock').style.display = isRestricted ? 'flex' : 'none';
   // show
   document.getElementById('splash').style.display = 'none';
   document.getElementById('app').style.display = 'block';
@@ -986,9 +1123,14 @@ function switchTab(tab, btn) {
   var btns = document.getElementById('main-vtabs').querySelectorAll('.vtab');
   for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
   btn.classList.add('active');
-  document.getElementById('tab-school').style.display = tab==='school'?'block':'none';
-  document.getElementById('tab-mine').style.display = tab==='mine'?'block':'none';
-  if(tab==='mine') document.getElementById('fab').classList.add('show');
+  document.getElementById('tab-school').style.display     = tab==='school'    ? 'block' : 'none';
+  document.getElementById('tab-community').style.display  = tab==='community' ? 'block' : 'none';
+  document.getElementById('tab-mine').style.display       = tab==='mine'      ? 'block' : 'none';
+  document.getElementById('fab').classList.toggle('show', tab==='mine');
+  // Charger les vidéos communauté au premier clic
+  if(tab==='community' && currentUser && currentUser.role !== 'membre') {
+    loadCommunityVideos();
+  }
 }
 
 function filterV(cat, btn) {
@@ -1089,7 +1231,14 @@ async function processUpload(file, meta) {
       supa_id: saved[0] ? saved[0].id : null
     });
     myVideos.unshift(newVid);
-    setTimeout(function(){pw.classList.remove('show');renderMyVideos();document.getElementById('my-filters').style.display='flex';},500);
+    // Ajouter aussi dans la vue communauté
+    communityVideos.unshift(Object.assign({}, newVid, {user_name: currentUser.name, user_email: currentUser.email}));
+    setTimeout(function(){
+      pw.classList.remove('show');
+      renderMyVideos();
+      renderCommunityVideos();
+      document.getElementById('my-filters').style.display='flex';
+    },500);
 
   } catch(err) {
     clearInterval(iv);
