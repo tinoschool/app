@@ -257,6 +257,12 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
 .my-modal-info{width:calc(100% - 28px);max-width:480px;margin-top:12px}
 .my-modal-nm{font-size:15px;font-weight:500;margin-bottom:3px}
 .my-modal-sub{font-size:11px;color:#555}
+/* Music iframes */
+#music-spotify iframe, #music-soundcloud iframe {
+  display:block;
+  border-radius:12px;
+  overflow:hidden;
+}
 </style>
 </head>
 <body>
@@ -303,8 +309,7 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
       <div class="mini-ev" onclick="goPage('agenda')"><div class="mini-ev-day">21</div><div class="mini-ev-mo">Juin</div><div class="mini-ev-nm">Évaluation</div><div class="mini-ev-tp">📋 Évaluation</div></div>
     </div>
     <div class="row-head"><h3>Actus</h3><span onclick="goPage('news')">Tout voir →</span></div>
-    <div class="mini-news" onclick="goPage('news')"><div class="mini-news-cat">🎭 Spectacle</div><div class="mini-news-title">Spectacle de fin d'année — Samedi 13 Juin</div><div class="mini-news-date">19 mai 2026</div></div>
-    <div class="mini-news" onclick="goPage('news')"><div class="mini-news-cat">🎟️ Billetterie</div><div class="mini-news-title">Billetterie ouverte pour le spectacle du 13 Juin</div><div class="mini-news-date">19 mai 2026</div></div>
+    <div id="home-news-list"></div>
   </div>
 
   <!-- VIDEOS -->
@@ -371,27 +376,54 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
   <div class="page" id="page-news">
     <div class="sec-h">Actualités</div>
     <div class="sec-s">Infos &amp; annonces Tinoschool</div>
-    <div class="ncard"><div class="nbanner">🌟</div><div class="nbody"><div class="ncat">🎭 Spectacle</div><div class="ntitle">Spectacle de Fin d'Année — Samedi 13 Juin 2026</div><div class="nexcerpt">Le spectacle de fin d'année aura lieu le samedi 13 juin. Tous les élèves sont invités à y participer. Une soirée exceptionnelle pour clôturer la saison en beauté !</div><div class="ndate">19 mai 2026</div></div></div>
-    <div class="ncard"><div class="nbanner">🎟️</div><div class="nbody"><div class="ncat">Billetterie</div><div class="ntitle">Billetterie ouverte pour le Spectacle du 13 Juin</div><div class="nexcerpt">Les billets pour le spectacle de fin d'année sont disponibles. Réservez vite, les places sont limitées ! Tarif réduit pour les familles d'adhérents.</div><div class="ndate">19 mai 2026</div></div></div>
-    <div class="ncard"><div class="nbanner">📋</div><div class="nbody"><div class="ncat">Évaluation</div><div class="ntitle">Évaluation — Dimanche 21 Juin 2026</div><div class="nexcerpt">Les évaluations de fin de saison auront lieu le dimanche 21 juin. Plus d'informations à venir sur les horaires et le déroulement.</div><div class="ndate">19 mai 2026</div></div></div>
+    <div id="news-list"></div>
   </div>
 
   <!-- MUSIQUE -->
   <div class="page" id="page-musique">
     <div class="sec-h">Musiques</div>
-    <div class="sec-s">Playlists de vos chorégraphies</div>
-    <div class="locked" id="music-wrap">
-      <div id="music-content">
-        <div class="playlist"><div class="playlist-art">🎵</div><div><h3>Spectacle 2026</h3><p>6 titres · Playlist officielle</p></div></div>
-        <div id="tracklist"></div>
-        <div style="height:1px;background:#1f1f1f;margin:16px 0"></div>
-        <div class="playlist" style="margin-bottom:14px"><div class="playlist-art">🔥</div><div><h3>Échauffements</h3><p>3 titres · Cours hebdo</p></div></div>
-        <div id="tracklist2"></div>
+    <div class="sec-s">Spotify · SoundCloud · Nos musiques</div>
+
+    <!-- Onglets -->
+    <div class="vtabs" id="music-tabs">
+      <button class="vtab active" onclick="switchMusic('spotify',this)">🎵 Spotify</button>
+      <button class="vtab" onclick="switchMusic('soundcloud',this)">☁️ SoundCloud</button>
+      <button class="vtab" onclick="switchMusic('private',this)">🔒 Nos musiques</button>
+    </div>
+
+    <!-- SPOTIFY (public) -->
+    <div id="music-spotify">
+      <p style="font-size:12px;color:#555;margin-bottom:14px">Playlist officielle Tinoschool — accessible à tous les membres</p>
+      <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/46nMC4oUXB3vc5z8z2Q9Ol?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    </div>
+
+    <!-- SOUNDCLOUD (public) -->
+    <div id="music-soundcloud" style="display:none">
+      <p style="font-size:12px;color:#555;margin-bottom:14px">Profil SoundCloud de Tinoschool — accessible à tous les membres</p>
+      <iframe width="100%" height="450" scrolling="no" frameborder="no" allow="autoplay"
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/teeganlauren&color=%23FFD000&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=false">
+      </iframe>
+      <div style="font-size:11px;color:#333;margin-top:6px;text-align:center">
+        <a href="https://soundcloud.com/teeganlauren" target="_blank" style="color:#FFD000;text-decoration:none">Voir sur SoundCloud ↗</a>
       </div>
-      <div class="lock-overlay" id="music-lock" style="display:none">
-        <div class="lock-icon">🎵</div><div class="lock-title">Accès Adhérents</div>
-        <div class="lock-desc">Les playlists sont réservées aux adhérents.</div>
-        <div class="lock-pill">Réserver votre abonnement</div>
+    </div>
+
+    <!-- NOS MUSIQUES (adhérents) -->
+    <div id="music-private">
+      <div class="locked" id="music-private-wrap">
+        <div id="music-content">
+          <div class="playlist"><div class="playlist-art">🎵</div><div><h3>Spectacle 2026</h3><p>6 titres · Playlist officielle</p></div></div>
+          <div id="tracklist"></div>
+          <div style="height:1px;background:#1f1f1f;margin:16px 0"></div>
+          <div class="playlist" style="margin-bottom:14px"><div class="playlist-art">🔥</div><div><h3>Échauffements</h3><p>3 titres · Cours hebdo</p></div></div>
+          <div id="tracklist2"></div>
+        </div>
+        <div class="lock-overlay" id="music-private-lock" style="display:none">
+          <div class="lock-icon">🔒</div>
+          <div class="lock-title">Accès Adhérents</div>
+          <div class="lock-desc">Les musiques uploadées sont réservées aux adhérents de l'association.</div>
+          <div class="lock-pill">Réserver votre abonnement</div>
+        </div>
       </div>
     </div>
   </div>
@@ -432,7 +464,40 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
   <!-- ADMIN -->
   <div class="page" id="page-admin">
     <div class="admin-hdr"><span style="font-size:26px">⚙️</span><div><h2>Espace Admin</h2><p>Gestion membres &amp; notifications</p></div></div>
+    <div class="admin-sec">📰 Gérer les actualités</div>
+    <!-- Formulaire ajout actu -->
+    <div class="notif-compose" id="actu-form">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+        <span style="font-size:20px" id="actu-emoji-preview">📢</span>
+        <div class="fl" style="flex:1;margin-bottom:0">
+          <div class="fl-label">Emoji</div>
+          <select class="fl-input" id="actu-emoji" onchange="document.getElementById('actu-emoji-preview').textContent=this.value" style="padding:8px">
+            <option>📢</option><option>🌟</option><option>🎭</option><option>🎟️</option>
+            <option>📋</option><option>🏆</option><option>👕</option><option>🎵</option>
+            <option>📅</option><option>⚠️</option><option>✅</option><option>🎉</option>
+          </select>
+        </div>
+        <div class="fl" style="flex:2;margin-bottom:0">
+          <div class="fl-label">Catégorie</div>
+          <input class="fl-input" id="actu-cat" placeholder="Ex: Spectacle" style="padding:8px">
+        </div>
+      </div>
+      <div class="fl" style="margin-bottom:10px">
+        <div class="fl-label">Titre *</div>
+        <input class="fl-input" id="actu-title" placeholder="Titre de l'actualité">
+      </div>
+      <div class="fl" style="margin-bottom:14px">
+        <div class="fl-label">Description</div>
+        <textarea id="actu-excerpt" style="width:100%;background:#111;border:1px solid #333;border-radius:7px;padding:10px;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:13px;resize:none;outline:none;min-height:70px" placeholder="Description courte…"></textarea>
+      </div>
+      <button class="btn-login" onclick="addActu()" style="font-size:11px;padding:11px">➕ Publier l'actualité</button>
+    </div>
+    <!-- Liste actus existantes -->
+    <div id="admin-actus-list" style="margin-bottom:4px"></div>
+    <div class="sep"></div>
+
     <div class="admin-sec">👥 Membres &amp; Rôles</div>
+    <p style="font-size:11px;color:#555;margin-bottom:12px">Seul l'admin principal (tinoschool.info@gmail.com) peut modifier les rôles.</p>
     <div id="admin-members"></div>
     <div class="sep"></div>
     <div class="admin-sec">📢 Envoyer une notification</div>
@@ -555,10 +620,19 @@ var WHITELIST = ['tino@tinoschool.com','tinoschool.info@gmail.com','gaetan.lague
 var BETA = true;
 
 var MEMBERS = [
-  {id:1,name:'Tino Anoman',email:'tino@tinoschool.com',initials:'TA',role:'admin'},
-  {id:2,name:'Gaëtan Laguerre',email:'gaetan.laguerre@gmail.com',initials:'GL',role:'adherent'},
-  {id:3,name:'Teegan Yin Yang',email:'teegan.yinyangcrew@gmail.com',initials:'TY',role:'adherent'},
+  {id:1,name:'Tinoschool',email:'tinoschool.info@gmail.com',initials:'TS',role:'admin'},
+  {id:2,name:'Tino Anoman',email:'tino@tinoschool.com',initials:'TA',role:'admin'},
+  {id:3,name:'Gaëtan Laguerre',email:'gaetan.laguerre@gmail.com',initials:'GL',role:'adherent'},
+  {id:4,name:'Teegan Yin Yang',email:'teegan.yinyangcrew@gmail.com',initials:'TY',role:'adherent'},
 ];
+
+// Actus gérées par l'admin — modifiables sans passer par le code
+var ACTUS = [
+  {id:1, emoji:'🌟', cat:'Spectacle', title:'Spectacle de Fin d\'Année — Samedi 13 Juin 2026', excerpt:'Le spectacle de fin d\'année aura lieu le samedi 13 juin. Une soirée exceptionnelle pour clôturer la saison en beauté !', date:'19 mai 2026'},
+  {id:2, emoji:'🎟️', cat:'Billetterie', title:'Billetterie ouverte pour le Spectacle du 13 Juin', excerpt:'Les billets sont disponibles. Réservez vite, les places sont limitées ! Tarif réduit pour les familles d\'adhérents.', date:'19 mai 2026'},
+  {id:3, emoji:'📋', cat:'Évaluation', title:'Évaluation — Dimanche 21 Juin 2026', excerpt:'Les évaluations de fin de saison auront lieu le dimanche 21 juin. Plus d\'informations à venir sur les horaires.', date:'19 mai 2026'},
+];
+
 
 var VIDEOS = [
   {id:'LNM9dNaxI34',cat:'festival',title:'Tinoschool Week — Live complet',year:'2023',lieu:'Tremblay-en-France'},
@@ -642,15 +716,18 @@ function startApp() {
   document.getElementById('p-cotis').textContent = (u.role==='adherent'||u.role==='admin') ? '✓' : '—';
   if (u.role==='admin') document.getElementById('admin-btn').classList.add('show');
   // locks
+  // Membre : accès vidéos école + musiques publiques (Spotify/SoundCloud)
+  // Adhérent : + vidéos perso + musiques uploadées
   document.getElementById('mine-lock').style.display = u.role==='membre' ? 'flex' : 'none';
-  document.getElementById('music-lock').style.display = u.role==='membre' ? 'flex' : 'none';
+  document.getElementById('music-private-lock').style.display = u.role==='membre' ? 'flex' : 'none';
   // show
   document.getElementById('splash').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.getElementById('nav').classList.add('show');
   buildVideos();
   buildTracks();
-  if (u.role==='admin') buildAdminMembers();
+  renderNews();
+  if (u.role==='admin') { buildAdminMembers(); renderNews(); }
 }
 
 function logout() {
@@ -849,20 +926,102 @@ function markRead(){notifications.forEach(function(n){n.read=true;});updateBadge
 function updateBadge(){var u=notifications.filter(function(n){return !n.read;}).length,b=document.getElementById('notif-badge');b.textContent=u;b.classList.toggle('show',u>0);}
 
 // ── ADMIN ──
+// ── ACTUS ──
+function renderNews() {
+  // Page news
+  var list = document.getElementById('news-list');
+  if(list) {
+    if(!ACTUS.length){list.innerHTML='<div class="empty"><span class="empty-ico">📢</span><p>Aucune actualité pour l\'instant.</p></div>';return;}
+    list.innerHTML = ACTUS.map(function(a){
+      return '<div class="ncard"><div class="nbanner">'+a.emoji+'</div>'
+        +'<div class="nbody"><div class="ncat">'+a.cat+'</div>'
+        +'<div class="ntitle">'+a.title+'</div>'
+        +'<div class="nexcerpt">'+a.excerpt+'</div>'
+        +'<div class="ndate">'+a.date+'</div></div></div>';
+    }).join('');
+  }
+  // Mini-news accueil (2 dernières)
+  var homeList = document.getElementById('home-news-list');
+  if(homeList) {
+    homeList.innerHTML = ACTUS.slice(0,2).map(function(a){
+      return '<div class="mini-news" onclick="goPage(\'news\')">'
+        +'<div class="mini-news-cat">'+a.emoji+' '+a.cat+'</div>'
+        +'<div class="mini-news-title">'+a.title+'</div>'
+        +'<div class="mini-news-date">'+a.date+'</div></div>';
+    }).join('');
+  }
+  // Admin list
+  var adminList = document.getElementById('admin-actus-list');
+  if(adminList) {
+    if(!ACTUS.length){adminList.innerHTML='<div class="empty" style="padding:16px"><p>Aucune actualité publiée.</p></div>';return;}
+    adminList.innerHTML = ACTUS.map(function(a,i){
+      return '<div style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:#111;border:1px solid #222;border-radius:9px;margin-bottom:7px">'
+        +'<span style="font-size:20px">'+a.emoji+'</span>'
+        +'<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+a.title+'</div>'
+        +'<div style="font-size:10px;color:#555">'+a.cat+' · '+a.date+'</div></div>'
+        +'<button onclick="deleteActu('+i+')" style="width:28px;height:28px;border-radius:7px;background:rgba(255,68,68,.1);border:none;cursor:pointer;color:#ff6b6b;font-size:12px">🗑</button>'
+        +'</div>';
+    }).join('');
+  }
+}
+
+function addActu() {
+  var title = document.getElementById('actu-title').value.trim();
+  if(!title){alert('Le titre est obligatoire.');return;}
+  var emoji = document.getElementById('actu-emoji').value;
+  var cat = document.getElementById('actu-cat').value.trim() || 'Info';
+  var excerpt = document.getElementById('actu-excerpt').value.trim();
+  var date = new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+  ACTUS.unshift({id:Date.now(),emoji:emoji,cat:cat,title:title,excerpt:excerpt,date:date});
+  document.getElementById('actu-title').value='';
+  document.getElementById('actu-cat').value='';
+  document.getElementById('actu-excerpt').value='';
+  renderNews();
+  alert('✅ Actualité publiée !');
+}
+
+function deleteActu(i) {
+  if(!confirm('Supprimer cette actualité ?')) return;
+  ACTUS.splice(i,1);
+  renderNews();
+}
+
 function buildAdminMembers(){
+  var isMasterAdmin = currentUser && currentUser.email === 'tinoschool.info@gmail.com';
   document.getElementById('admin-members').innerHTML=MEMBERS.map(function(m){
+    var isProtected = m.email === 'tinoschool.info@gmail.com';
+    var sel = isProtected || !isMasterAdmin
+      ? '<span class="role-pill '+m.role+'" style="font-size:10px;padding:3px 10px">'+(m.role==='admin'?'⚙️ Admin':m.role==='adherent'?'✅ Adhérent':'👤 Membre')+'</span>'
+      : '<select class="role-sel" onchange="changeRole('+m.id+',this.value)">'
+        +'<option value="membre"'+(m.role==='membre'?' selected':'')+'>👤 Membre</option>'
+        +'<option value="adherent"'+(m.role==='adherent'?' selected':'')+'>✅ Adhérent</option>'
+        +'<option value="admin"'+(m.role==='admin'?' selected':'')+'>⚙️ Admin</option>'
+        +'</select>';
     return '<div class="mrow-admin"><div class="mrow-ava">'+m.initials+'</div>'
-      +'<div class="mrow-info"><div class="mrow-nm">'+m.name+'</div><div class="mrow-em">'+m.email+'</div></div>'
-      +'<select class="role-sel" onchange="changeRole('+m.id+',this.value)">'
-      +'<option value="membre"'+(m.role==='membre'?' selected':'')+'">Membre</option>'
-      +'<option value="adherent"'+(m.role==='adherent'?' selected':'')+'>Adhérent</option>'
-      +'<option value="admin"'+(m.role==='admin'?' selected':'')+'>Admin</option>'
-      +'</select></div>';
+      +'<div class="mrow-info"><div class="mrow-nm">'+m.name+(isProtected?' 👑':'')+'</div><div class="mrow-em">'+m.email+'</div></div>'
+      +sel+'</div>';
   }).join('');
 }
 function changeRole(id,role){
-  var m=MEMBERS.find(function(m){return m.id===id;});
-  if(m){m.role=role;if(currentUser&&currentUser.id===id){currentUser.role=role;document.getElementById('mine-lock').style.display=role==='membre'?'flex':'none';document.getElementById('music-lock').style.display=role==='membre'?'flex':'none';}}
+  // Seul l'admin principal peut changer les rôles
+  if(!currentUser || currentUser.email !== 'tinoschool.info@gmail.com') {
+    alert('Seul l\'administrateur principal peut modifier les rôles.');
+    buildAdminMembers(); return;
+  }
+  // Impossible de changer le rôle de l'admin principal
+  var target = MEMBERS.find(function(m){return m.id===id;});
+  if(target && target.email === 'tinoschool.info@gmail.com') {
+    alert('Le rôle de l\'administrateur principal ne peut pas être modifié.');
+    buildAdminMembers(); return;
+  }
+  if(target){
+    target.role=role;
+    if(currentUser&&currentUser.id===id){
+      currentUser.role=role;
+      document.getElementById('mine-lock').style.display=role==='membre'?'flex':'none';
+      document.getElementById('music-private-lock').style.display=role==='membre'?'flex':'none';
+    }
+  }
   buildAdminMembers();
 }
 async function sendNotif(){
@@ -898,6 +1057,16 @@ document.querySelectorAll('.chip').forEach(function(c){
     c.classList.add('active');
   });
 });
+
+// ── MUSIC TABS ──
+function switchMusic(tab, btn) {
+  var btns = document.getElementById('music-tabs').querySelectorAll('.vtab');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+  document.getElementById('music-spotify').style.display    = tab==='spotify'     ? 'block' : 'none';
+  document.getElementById('music-soundcloud').style.display = tab==='soundcloud'  ? 'block' : 'none';
+  document.getElementById('music-private').style.display    = tab==='private'     ? 'block' : 'none';
+}
 
 // ── CALENDAR VIEW ──
 function setCalView(mode, btn) {
