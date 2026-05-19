@@ -273,7 +273,6 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
   <div class="splash-sub">École de danse Hip-Hop · Île-de-France</div>
   <div class="splash-form">
     <input type="email" id="f-email" placeholder="Adresse e-mail">
-    <input type="password" id="f-pwd" placeholder="Mot de passe">
     <button class="btn-login" onclick="login()">Accéder à mon espace</button>
   </div>
   <div id="login-msg"></div>
@@ -695,6 +694,60 @@ async function loadMyVideos() {
       if(myVideos.length) document.getElementById('my-filters').style.display='flex';
     }
   } catch(e) { console.log('loadMyVideos error:', e); }
+}
+
+// ── MEMBERS — Supabase ──
+async function getMemberFromDB(email) {
+  try {
+    var res = await fetch(
+      SUPA_URL + '/rest/v1/members?email=eq.' + encodeURIComponent(email) + '&limit=1',
+      { headers: SUPA_HEADERS }
+    );
+    var data = await res.json();
+    return data && data.length ? data[0] : null;
+  } catch(e) { return null; }
+}
+
+async function saveMemberToDB(member) {
+  try {
+    // Upsert — crée ou met à jour
+    await fetch(SUPA_URL + '/rest/v1/members', {
+      method: 'POST',
+      headers: Object.assign({}, SUPA_HEADERS, {
+        'Prefer': 'resolution=merge-duplicates,return=representation'
+      }),
+      body: JSON.stringify({
+        email: member.email,
+        name: member.name,
+        initials: member.initials,
+        role: member.role,
+        updated_at: new Date().toISOString()
+      })
+    });
+  } catch(e) { console.log('saveMember error:', e); }
+}
+
+async function updateRoleInDB(email, role) {
+  try {
+    await fetch(
+      SUPA_URL + '/rest/v1/members?email=eq.' + encodeURIComponent(email),
+      {
+        method: 'PATCH',
+        headers: Object.assign({}, SUPA_HEADERS, {'Prefer': 'return=representation'}),
+        body: JSON.stringify({ role: role, updated_at: new Date().toISOString() })
+      }
+    );
+  } catch(e) { console.log('updateRole error:', e); }
+}
+
+async function getAllMembersFromDB() {
+  try {
+    var res = await fetch(
+      SUPA_URL + '/rest/v1/members?order=role.asc,name.asc',
+      { headers: SUPA_HEADERS }
+    );
+    return await res.json();
+  } catch(e) { return []; }
 }
 
 // ── LOAD PRIVATE TRACKS FROM SUPABASE ──
@@ -1142,43 +1195,55 @@ function deleteActu(i) {
   renderNews();
 }
 
-function buildAdminMembers(){
+var adminMembersList = [];
+async function buildAdminMembers(){
+  var container = document.getElementById('admin-members');
+  container.innerHTML = '<div style="text-align:center;padding:20px;color:#555;font-size:12px">⏳ Chargement des membres…</div>';
+  
+  try {
+    var data = await getAllMembersFromDB();
+    adminMembersList = Array.isArray(data) ? data : MEMBERS;
+  } catch(e) {
+    adminMembersList = MEMBERS;
+  }
+
   var isMasterAdmin = currentUser && currentUser.email === 'tinoschool.info@gmail.com';
-  document.getElementById('admin-members').innerHTML=MEMBERS.map(function(m){
+  var roleLabels = {admin:'⚙️ Admin', adherent:'✅ Adhérent', membre:'👤 Membre'};
+  
+  container.innerHTML = adminMembersList.map(function(m){
     var isProtected = m.email === 'tinoschool.info@gmail.com';
     var sel = isProtected || !isMasterAdmin
-      ? '<span class="role-pill '+m.role+'" style="font-size:10px;padding:3px 10px">'+(m.role==='admin'?'⚙️ Admin':m.role==='adherent'?'✅ Adhérent':'👤 Membre')+'</span>'
-      : '<select class="role-sel" onchange="changeRole('+m.id+',this.value)">'
+      ? '<span class="role-pill '+(m.role||'membre')+'" style="font-size:10px;padding:3px 10px">'+(roleLabels[m.role]||'👤 Membre')+'</span>'
+      : '<select class="role-sel" onchange="changeRole(\''+m.id+'\',this.value)">'
         +'<option value="membre"'+(m.role==='membre'?' selected':'')+'>👤 Membre</option>'
         +'<option value="adherent"'+(m.role==='adherent'?' selected':'')+'>✅ Adhérent</option>'
         +'<option value="admin"'+(m.role==='admin'?' selected':'')+'>⚙️ Admin</option>'
         +'</select>';
-    return '<div class="mrow-admin"><div class="mrow-ava">'+m.initials+'</div>'
-      +'<div class="mrow-info"><div class="mrow-nm">'+m.name+(isProtected?' 👑':'')+'</div><div class="mrow-em">'+m.email+'</div></div>'
-      +sel+'</div>';
+    return '<div class="mrow-admin">'
+      +'<div class="mrow-ava">'+(m.initials||m.name.slice(0,2).toUpperCase())+'</div>'
+      +'<div class="mrow-info">'
+        +'<div class="mrow-nm">'+(m.name||m.email)+(isProtected?' 👑':'')+'</div>'
+        +'<div class="mrow-em">'+m.email+'</div>'
+      +'</div>'+sel+'</div>';
   }).join('');
 }
-function changeRole(id,role){
-  // Seul l'admin principal peut changer les rôles
+async function changeRole(id, role) {
   if(!currentUser || currentUser.email !== 'tinoschool.info@gmail.com') {
     alert('Seul l\'administrateur principal peut modifier les rôles.');
-    buildAdminMembers(); return;
+    return;
   }
-  // Impossible de changer le rôle de l'admin principal
-  var target = MEMBERS.find(function(m){return m.id===id;});
-  if(target && target.email === 'tinoschool.info@gmail.com') {
+  // Trouver le membre dans la liste admin
+  var target = adminMembersList.find(function(m){return m.id===id;});
+  if(!target) return;
+  if(target.email === 'tinoschool.info@gmail.com') {
     alert('Le rôle de l\'administrateur principal ne peut pas être modifié.');
-    buildAdminMembers(); return;
+    return;
   }
-  if(target){
-    target.role=role;
-    if(currentUser&&currentUser.id===id){
-      currentUser.role=role;
-      document.getElementById('mine-lock').style.display=role==='membre'?'flex':'none';
-      document.getElementById('music-private-lock').style.display=role==='membre'?'flex':'none';
-    }
-  }
+  target.role = role;
+  // Sauvegarder dans Supabase
+  await updateRoleInDB(target.email, role);
   buildAdminMembers();
+  alert('✅ Rôle mis à jour pour ' + target.name);
 }
 async function sendNotif(){
   var msg=document.getElementById('notif-msg').value.trim();
