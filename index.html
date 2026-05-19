@@ -299,14 +299,12 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
     </div>
     <div class="row-head"><h3>Agenda</h3><span onclick="goPage('agenda')">Tout voir →</span></div>
     <div class="h-scroll">
-      <div class="mini-ev" onclick="goPage('agenda')"><div class="mini-ev-day">24</div><div class="mini-ev-mo">Mai</div><div class="mini-ev-nm">Hip-Hop 8–12 ans</div><div class="mini-ev-tp">Cours</div></div>
-      <div class="mini-ev" onclick="goPage('agenda')"><div class="mini-ev-day">31</div><div class="mini-ev-mo">Mai</div><div class="mini-ev-nm">Répétition Spectacle</div><div class="mini-ev-tp">Répétition</div></div>
-      <div class="mini-ev" onclick="goPage('agenda')"><div class="mini-ev-day">07</div><div class="mini-ev-mo">Juin</div><div class="mini-ev-nm">Tinoschool Week</div><div class="mini-ev-tp">Festival</div></div>
-      <div class="mini-ev" onclick="goPage('agenda')"><div class="mini-ev-day">21</div><div class="mini-ev-mo">Juin</div><div class="mini-ev-nm">Spectacle Fin d'Année</div><div class="mini-ev-tp">Spectacle</div></div>
+      <div class="mini-ev" onclick="goPage('agenda')"><div class="mini-ev-day">13</div><div class="mini-ev-mo">Juin</div><div class="mini-ev-nm">Spectacle de Fin d'Année</div><div class="mini-ev-tp">🌟 Spectacle</div></div>
+      <div class="mini-ev" onclick="goPage('agenda')"><div class="mini-ev-day">21</div><div class="mini-ev-mo">Juin</div><div class="mini-ev-nm">Évaluation</div><div class="mini-ev-tp">📋 Évaluation</div></div>
     </div>
     <div class="row-head"><h3>Actus</h3><span onclick="goPage('news')">Tout voir →</span></div>
-    <div class="mini-news" onclick="goPage('news')"><div class="mini-news-cat">Inscriptions</div><div class="mini-news-title">Réinscriptions 2026–2027 : priorité adhérents</div><div class="mini-news-date">15 mai 2026</div></div>
-    <div class="mini-news" onclick="goPage('news')"><div class="mini-news-cat">Festival</div><div class="mini-news-title">Tinoschool Week — Toutes les infos</div><div class="mini-news-date">10 mai 2026</div></div>
+    <div class="mini-news" onclick="goPage('news')"><div class="mini-news-cat">🎭 Spectacle</div><div class="mini-news-title">Spectacle de fin d'année — Samedi 13 Juin</div><div class="mini-news-date">19 mai 2026</div></div>
+    <div class="mini-news" onclick="goPage('news')"><div class="mini-news-cat">🎟️ Billetterie</div><div class="mini-news-title">Billetterie ouverte pour le spectacle du 13 Juin</div><div class="mini-news-date">19 mai 2026</div></div>
   </div>
 
   <!-- VIDEOS -->
@@ -361,17 +359,21 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
     <div class="sec-h">Agenda</div>
     <div class="sec-s">Cours · Répétitions · Événements</div>
     <div class="gcal-info"><span style="font-size:22px">📅</span><div><h4>Google Calendar synchronisé</h4><p>Mis à jour automatiquement depuis le calendrier Tinoschool.</p></div></div>
-    <div class="agenda-iframe"><iframe src="https://calendar.google.com/calendar/embed?src=tinoschool.info%40gmail.com&ctz=Europe%2FBrussels&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&mode=AGENDA&bgcolor=%230a0a0a&color=%23FFD000" frameborder="0" scrolling="no"></iframe></div>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button class="vtab active" onclick="setCalView('AGENDA',this)">📋 Agenda</button>
+      <button class="vtab" onclick="setCalView('WEEK',this)">📆 Semaine</button>
+      <button class="vtab" onclick="setCalView('MONTH',this)">🗓️ Mois</button>
+    </div>
+    <div class="agenda-iframe"><iframe id="gcal-iframe" src="https://calendar.google.com/calendar/embed?src=tinoschool.info%40gmail.com&ctz=Europe%2FBrussels&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&mode=AGENDA&bgcolor=%230a0a0a&color=%23FFD000" frameborder="0" scrolling="no"></iframe></div>
   </div>
 
   <!-- NEWS -->
   <div class="page" id="page-news">
     <div class="sec-h">Actualités</div>
     <div class="sec-s">Infos &amp; annonces Tinoschool</div>
-    <div class="ncard"><div class="nbanner">📝</div><div class="nbody"><div class="ncat">Inscriptions</div><div class="ntitle">Réinscriptions 2026–2027 ouvertes dès le 1er juin</div><div class="nexcerpt">Priorité accordée aux adhérents actuels jusqu'au 15 juin. Rendez-vous sur votre espace membre.</div><div class="ndate">15 mai 2026</div></div></div>
-    <div class="ncard"><div class="nbanner">🏆</div><div class="nbody"><div class="ncat">Festival</div><div class="ntitle">Tinoschool Week — Le programme complet</div><div class="nexcerpt">Le festival revient le 7 juin à Tremblay-en-France. Battles, showcases, ateliers et concerts.</div><div class="ndate">10 mai 2026</div></div></div>
-    <div class="ncard"><div class="nbanner">🌟</div><div class="nbody"><div class="ncat">Spectacle</div><div class="ntitle">Billets disponibles — Spectacle de Fin d'Année</div><div class="nexcerpt">Billets pour le 21 juin disponibles à l'accueil. Places limitées !</div><div class="ndate">5 mai 2026</div></div></div>
-    <div class="ncard"><div class="nbanner">👕</div><div class="nbody"><div class="ncat">Boutique</div><div class="ntitle">Collection 2026 — Nouveaux articles</div><div class="nexcerpt">La nouvelle collection Tinoschool 2026 est disponible. Pulls et t-shirts adultes et kids.</div><div class="ndate">1 mai 2026</div></div></div>
+    <div class="ncard"><div class="nbanner">🌟</div><div class="nbody"><div class="ncat">🎭 Spectacle</div><div class="ntitle">Spectacle de Fin d'Année — Samedi 13 Juin 2026</div><div class="nexcerpt">Le spectacle de fin d'année aura lieu le samedi 13 juin. Tous les élèves sont invités à y participer. Une soirée exceptionnelle pour clôturer la saison en beauté !</div><div class="ndate">19 mai 2026</div></div></div>
+    <div class="ncard"><div class="nbanner">🎟️</div><div class="nbody"><div class="ncat">Billetterie</div><div class="ntitle">Billetterie ouverte pour le Spectacle du 13 Juin</div><div class="nexcerpt">Les billets pour le spectacle de fin d'année sont disponibles. Réservez vite, les places sont limitées ! Tarif réduit pour les familles d'adhérents.</div><div class="ndate">19 mai 2026</div></div></div>
+    <div class="ncard"><div class="nbanner">📋</div><div class="nbody"><div class="ncat">Évaluation</div><div class="ntitle">Évaluation — Dimanche 21 Juin 2026</div><div class="nexcerpt">Les évaluations de fin de saison auront lieu le dimanche 21 juin. Plus d'informations à venir sur les horaires et le déroulement.</div><div class="ndate">19 mai 2026</div></div></div>
   </div>
 
   <!-- MUSIQUE -->
@@ -896,6 +898,15 @@ document.querySelectorAll('.chip').forEach(function(c){
     c.classList.add('active');
   });
 });
+
+// ── CALENDAR VIEW ──
+function setCalView(mode, btn) {
+  var btns = document.querySelectorAll('#page-agenda .vtab');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+  var iframe = document.getElementById('gcal-iframe');
+  iframe.src = 'https://calendar.google.com/calendar/embed?src=tinoschool.info%40gmail.com&ctz=Europe%2FBrussels&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&mode='+mode+'&bgcolor=%230a0a0a&color=%23FFD000';
+}
 
 // ── KEYBOARD ──
 document.addEventListener('keydown',function(e){
