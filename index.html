@@ -262,6 +262,16 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
   display:block;
   border-radius:12px;
   overflow:hidden;
+  width:100% !important;
+}
+/* Page musique padding bottom pour mini player */
+#page-musique { padding-bottom: 20px; }
+
+/* Onglets musique scrollables sur mobile */
+#music-tabs { 
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  padding-bottom:4px;
 }
 </style>
 </head>
@@ -393,14 +403,14 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
     <!-- SPOTIFY (public) -->
     <div id="music-spotify">
       <p style="font-size:12px;color:#555;margin-bottom:14px">Playlist officielle Tinoschool — accessible à tous les membres</p>
-      <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/46nMC4oUXB3vc5z8z2Q9Ol?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      <iframe style="border-radius:12px;display:block;width:100%" src="https://open.spotify.com/embed/playlist/46nMC4oUXB3vc5z8z2Q9Ol?utm_source=generator" width="100%" height="500" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     </div>
 
     <!-- SOUNDCLOUD (public) -->
     <div id="music-soundcloud" style="display:none">
       <p style="font-size:12px;color:#555;margin-bottom:14px">Playlist Hip-Hop Freestyle Dance Beats — accessible à tous les membres</p>
-      <iframe width="100%" height="352" scrolling="no" frameborder="no" allow="autoplay"
-        style="border-radius:12px"
+      <iframe width="100%" height="500" scrolling="no" frameborder="no" allow="autoplay"
+        style="border-radius:12px;display:block;width:100%"
         src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/teeganlauren/sets/hip-hop-freestyle-dance-beats&color=%23FFD000&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true">
       </iframe>
       <div style="font-size:11px;color:#333;margin-top:6px;text-align:center">
@@ -936,12 +946,12 @@ function startApp() {
 
 function logout() {
   currentUser = null;
+  localStorage.removeItem('tino_session');
   document.getElementById('splash').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
   document.getElementById('nav').classList.remove('show');
   document.getElementById('admin-btn').classList.remove('show');
   document.getElementById('f-email').value = '';
-  document.getElementById('f-pwd').value = '';
   stopMusic();
 }
 
@@ -1402,6 +1412,45 @@ async function addMember() {
     alert('⚠️ Erreur : ' + e.message);
   }
 }
+
+// ── SESSION PERSISTANTE ──
+async function checkSession() {
+  var savedEmail = localStorage.getItem('tino_session');
+  if (!savedEmail) return; // Pas de session → page de connexion normale
+
+  // Reconnexion automatique
+  try {
+    var dbMember = await getMemberFromDB(savedEmail);
+    if (dbMember) {
+      currentUser = {
+        id: dbMember.id,
+        name: dbMember.name || savedEmail.split('@')[0],
+        email: dbMember.email,
+        initials: dbMember.initials || savedEmail.slice(0,2).toUpperCase(),
+        role: dbMember.role
+      };
+    } else {
+      // Email non trouvé dans Supabase → effacer session
+      localStorage.removeItem('tino_session');
+      return;
+    }
+    startApp();
+  } catch(e) {
+    // Erreur réseau → fallback local
+    var found = MEMBERS.find(function(m){ return m.email === savedEmail; });
+    if (found) {
+      currentUser = found;
+      startApp();
+    } else {
+      localStorage.removeItem('tino_session');
+    }
+  }
+}
+
+// Vérifier la session dès le chargement
+document.addEventListener('DOMContentLoaded', function() {
+  checkSession();
+});
 
 // ── KEYBOARD ──
 document.addEventListener('keydown',function(e){
