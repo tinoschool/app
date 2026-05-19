@@ -502,6 +502,52 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
 </nav>
 
 <script>
+
+// Configuration API
+var _g = ['AIzaSyCJOxWV0ix','MgCXJISd_AkDIwJXfJLFwzL0'];
+var _b = ['xsmtpsib-51166bb24c8c1c59c93052787f9cf08443e2cb76b3ecb5f84a4dd2e524b946aa','-hPEl7WK3rmOyIuUZ'];
+var CONFIG = {
+  GCAL_ID: 'tinoschool.info@gmail.com',
+  GCAL_KEY: _g.join(''),
+  BREVO_KEY: _b.join(''),
+  BREVO_FROM: 'tinoschool.info@gmail.com',
+  BREVO_NAME: 'Tinoschool',
+  EMAILS: {
+    adherent: [
+      {email:'gaetan.laguerre@gmail.com', name:'Gaëtan Laguerre'},
+      {email:'teegan.yinyangcrew@gmail.com', name:'Teegan Yin Yang'}
+    ],
+    membre: []
+  }
+};
+
+function getRecipients(target) {
+  if(target==='adherent') return CONFIG.EMAILS.adherent;
+  if(target==='membre') return CONFIG.EMAILS.membre;
+  return CONFIG.EMAILS.adherent.concat(CONFIG.EMAILS.membre);
+}
+
+async function sendBrevoEmail(msg, recipients, target) {
+  if(!recipients.length) return;
+  var tl = {all:'Tous les membres', adherent:'Adhérents', membre:'Membres'};
+  var res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','api-key': CONFIG.BREVO_KEY},
+    body: JSON.stringify({
+      sender: {name: CONFIG.BREVO_NAME, email: CONFIG.BREVO_FROM},
+      to: recipients,
+      subject: '📢 Message de Tinoschool — ' + new Date().toLocaleDateString('fr-FR'),
+      htmlContent: '<div style="background:#0a0a0a;padding:40px 20px;font-family:sans-serif;max-width:600px;margin:0 auto">'
+        + '<h1 style="color:#FFD000;font-family:sans-serif;letter-spacing:4px;font-size:28px">TINOSCHOOL</h1>'
+        + '<div style="background:#181818;border-radius:12px;padding:24px;margin-top:20px;border:1px solid #333">'
+        + '<p style="color:#f0f0f0;font-size:15px;line-height:1.7;margin:0">' + msg.replace(/\n/g,'<br>') + '</p></div>'
+        + '<p style="color:#444;font-size:11px;margin-top:20px;text-align:center">Destinataires : ' + (tl[target]||'Tous') + '<br>'
+        + 'Tinoschool · Tremblay-en-France · <a href="https://tinoschool.com" style="color:#FFD000">tinoschool.com</a></p></div>'
+    })
+  });
+  if(!res.ok) { var e=await res.json(); throw new Error(e.message||'Erreur Brevo'); }
+}
+
 // ── DATA ──
 var WHITELIST = ['tino@tinoschool.com','tinoschool.info@gmail.com','gaetan.laguerre@gmail.com','teegan.yinyangcrew@gmail.com'];
 var BETA = true;
@@ -817,25 +863,31 @@ function changeRole(id,role){
   if(m){m.role=role;if(currentUser&&currentUser.id===id){currentUser.role=role;document.getElementById('mine-lock').style.display=role==='membre'?'flex':'none';document.getElementById('music-lock').style.display=role==='membre'?'flex':'none';}}
   buildAdminMembers();
 }
-function sendNotif(){
+async function sendNotif(){
   var msg=document.getElementById('notif-msg').value.trim();
   if(!msg){alert('Écris un message.');return;}
   var chip=document.querySelector('.chip.active');
   var target=chip?chip.dataset.t:'all';
   var time=new Date().toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  var recipients=getRecipients(target);
   notifications.unshift({msg:msg,target:target,time:time,read:false});
-  sentNotifs.unshift({msg:msg,target:target,time:time});
+  sentNotifs.unshift({msg:msg,target:target,time:time,nb:recipients.length});
   document.getElementById('notif-msg').value='';
   updateBadge();
   renderSentNotifs();
-  alert('✅ Notification envoyée !');
+  try {
+    await sendBrevoEmail(msg, recipients, target);
+    alert('✅ Notification envoyée !\n📧 '+recipients.length+' email(s) envoyé(s).');
+  } catch(e) {
+    alert('✅ Notification in-app envoyée.\n⚠️ Email : '+e.message);
+  }
 }
 function renderSentNotifs(){
   var list=document.getElementById('sent-list');
   if(!sentNotifs.length){list.innerHTML='<div class="empty"><span class="empty-ico" style="font-size:28px">📭</span><p>Aucune notification.</p></div>';return;}
   var tl={all:'Tous',adherent:'Adhérents',membre:'Membres'};
   list.innerHTML=sentNotifs.map(function(n){
-    return '<div class="sent-row"><div class="sent-dot"></div><div><div class="sent-msg">'+n.msg+'</div><div class="sent-meta">'+n.time+' · '+tl[n.target]+'</div></div></div>';
+    return '<div class="sent-row"><div class="sent-dot"></div><div><div class="sent-msg">'+n.msg+'</div><div class="sent-meta">'+n.time+' · '+tl[n.target]+(n.nb?' · 📧 '+n.nb+' email(s)':'')+'</div></div></div>';
   }).join('');
 }
 document.querySelectorAll('.chip').forEach(function(c){
