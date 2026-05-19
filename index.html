@@ -616,6 +616,107 @@ async function sendBrevoEmail(msg, recipients, target) {
   if(!res.ok) { var e=await res.json(); throw new Error(e.message||'Erreur Brevo'); }
 }
 
+
+// ══════════════════════════════════════
+//   BACKEND CONFIG
+//   Supabase + Cloudinary
+// ══════════════════════════════════════
+var _su = ['https://lntnbequoeoxqajnauak','.supabase.co'];
+var _sk = ['eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxudG5iZXF1b2VveHFham5hdWFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMTg3NDMsImV4cCI6MjA5NDc5NDc0M30','.VLkMv2RH9Sp1OJKS5I4YT416y9klvD6T4KOykadl9Oc'];
+var SUPA_URL    = _su.join('');
+var SUPA_KEY    = _sk.join('');
+var CL_CLOUD    = 'deiumbpc1';
+var CL_PRESET   = 'tinoschool_upload';
+var SUPA_HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SUPA_KEY,
+  'Authorization': 'Bearer ' + SUPA_KEY
+};
+
+// ── SUPABASE HELPERS ──
+async function dbSelect(table, filter) {
+  var url = SUPA_URL + '/rest/v1/' + table + '?order=created_at.desc';
+  if (filter) url += '&' + filter;
+  var res = await fetch(url, { headers: SUPA_HEADERS });
+  return await res.json();
+}
+
+async function dbInsert(table, data) {
+  var res = await fetch(SUPA_URL + '/rest/v1/' + table, {
+    method: 'POST',
+    headers: Object.assign({}, SUPA_HEADERS, {'Prefer': 'return=representation'}),
+    body: JSON.stringify(data)
+  });
+  return await res.json();
+}
+
+async function dbDelete(table, id) {
+  await fetch(SUPA_URL + '/rest/v1/' + table + '?id=eq.' + id, {
+    method: 'DELETE',
+    headers: SUPA_HEADERS
+  });
+}
+
+// ── CLOUDINARY UPLOAD ──
+async function uploadToCloudinary(file, folder) {
+  var fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CL_PRESET);
+  fd.append('folder', 'tinoschool/' + folder);
+  var res = await fetch('https://api.cloudinary.com/v1_1/' + CL_CLOUD + '/auto/upload', {
+    method: 'POST',
+    body: fd
+  });
+  return await res.json();
+}
+
+// ── LOAD MY VIDEOS FROM SUPABASE ──
+async function loadMyVideos() {
+  if (!currentUser) return;
+  try {
+    var data = await dbSelect('videos', 'user_email=eq.' + encodeURIComponent(currentUser.email));
+    if (Array.isArray(data)) {
+      myVideos = data.map(function(v) {
+        return {
+          id: v.id,
+          name: v.name,
+          url: v.url,
+          date: new Date(v.created_at).toLocaleDateString('fr-FR'),
+          size: v.size || '',
+          cat: v.cat,
+          cours: v.cours,
+          eleve: v.eleve || '',
+          annee: v.annee || '',
+          choree: v.choree || '',
+          supa_id: v.id
+        };
+      });
+      renderMyVideos();
+      if(myVideos.length) document.getElementById('my-filters').style.display='flex';
+    }
+  } catch(e) { console.log('loadMyVideos error:', e); }
+}
+
+// ── LOAD PRIVATE TRACKS FROM SUPABASE ──
+async function loadPrivateTracks() {
+  try {
+    var data = await dbSelect('tracks', '');
+    if (Array.isArray(data) && data.length) {
+      // Remplacer les tracks statiques par ceux de Supabase
+      var tl1 = document.getElementById('tracklist');
+      var tl2 = document.getElementById('tracklist2');
+      if(tl1) {
+        tl1.innerHTML = data.filter(function(t){return t.playlist==='spectacle';}).map(function(t,i){
+          return '<div class="track" onclick="playTrack(this,\''+t.name+'\',\''+t.style+'\',\''+t.url+'\')">'
+            +'<div class="tr-n">'+(i+1)+'</div><div class="tr-disc">🎵</div>'
+            +'<div class="tr-info"><div class="tr-nm">'+t.name+'</div><div class="tr-st">'+t.style+'</div></div>'
+            +'<div class="tr-dur">'+t.duration+'</div></div>';
+        }).join('') || tl1.innerHTML;
+      }
+    }
+  } catch(e) { console.log('loadPrivateTracks error:', e); }
+}
+
 // ── DATA ──
 var WHITELIST = ['tino@tinoschool.com','tinoschool.info@gmail.com','gaetan.laguerre@gmail.com','teegan.yinyangcrew@gmail.com'];
 var BETA = true;
@@ -729,6 +830,11 @@ function startApp() {
   buildTracks();
   renderNews();
   if (u.role==='admin') { buildAdminMembers(); renderNews(); }
+  // Charger les vidéos depuis Supabase
+  if (u.role !== 'membre') {
+    loadMyVideos();
+    loadPrivateTracks();
+  }
 }
 
 function logout() {
@@ -831,19 +937,60 @@ function submitUpload() {
   processUpload(selectedFile,{cours:cours,cat:currentCat,eleve:document.getElementById('up-eleve').value.trim(),annee:document.getElementById('up-annee').value,choree:document.getElementById('up-choree').value});
 }
 
-function processUpload(file, meta) {
+async function processUpload(file, meta) {
   var pw=document.getElementById('prog-wrap'),fill=document.getElementById('prog-fill'),pct=document.getElementById('prog-pct'),pn=document.getElementById('prog-name');
   pw.classList.add('show'); pn.textContent=file.name; fill.style.width='0%'; pct.textContent='0%';
-  var fake=0, iv=setInterval(function(){fake=Math.min(fake+Math.random()*12,90);fill.style.width=fake+'%';pct.textContent=Math.floor(fake)+'%';},120);
-  var reader=new FileReader();
-  reader.onload=function(e){
-    clearInterval(iv); fill.style.width='100%'; pct.textContent='100%';
-    var name=meta.cat==='choregraphie'?meta.choree:(meta.eleve+' — Freestyle');
-    myVideos.unshift({id:Date.now(),name:name,url:e.target.result,date:new Date().toLocaleDateString('fr-FR'),size:fmtSize(file.size),cat:meta.cat,cours:meta.cours,eleve:meta.eleve,annee:meta.annee,choree:meta.choree});
+
+  // Progression simulée pendant l'upload Cloudinary
+  var fake=0, iv=setInterval(function(){
+    fake=Math.min(fake+Math.random()*8,85);
+    fill.style.width=fake+'%'; pct.textContent=Math.floor(fake)+'%';
+  },200);
+
+  try {
+    // 1. Upload vers Cloudinary
+    pn.textContent = '📤 Upload en cours…';
+    var clRes = await uploadToCloudinary(file, 'videos');
+    if (!clRes.secure_url) throw new Error('Cloudinary upload failed');
+
+    clearInterval(iv); fill.style.width='90%'; pct.textContent='90%';
+
+    // 2. Sauvegarder métadonnées dans Supabase
+    pn.textContent = '💾 Sauvegarde…';
+    var name = meta.cat==='choregraphie' ? meta.choree : (meta.eleve+' — Freestyle');
+    var record = {
+      name: name,
+      url: clRes.secure_url,
+      cat: meta.cat,
+      cours: meta.cours,
+      eleve: meta.eleve || '',
+      annee: meta.annee || '',
+      choree: meta.choree || '',
+      size: fmtSize(file.size),
+      user_email: currentUser.email,
+      user_name: currentUser.name,
+      cloudinary_id: clRes.public_id
+    };
+    var saved = await dbInsert('videos', record);
+
+    fill.style.width='100%'; pct.textContent='100%';
+
+    // 3. Ajouter en local
+    var newVid = Object.assign({}, record, {
+      id: saved[0] ? saved[0].id : Date.now(),
+      date: new Date().toLocaleDateString('fr-FR'),
+      supa_id: saved[0] ? saved[0].id : null
+    });
+    myVideos.unshift(newVid);
     setTimeout(function(){pw.classList.remove('show');renderMyVideos();document.getElementById('my-filters').style.display='flex';},500);
-    selectedFile=null;
-  };
-  reader.readAsDataURL(file);
+
+  } catch(err) {
+    clearInterval(iv);
+    pw.classList.remove('show');
+    console.error('Upload error:', err);
+    alert('⚠️ Erreur upload: ' + err.message + '\n\nVérifie que l\'Upload Preset Cloudinary est configuré.');
+  }
+  selectedFile = null;
 }
 
 function filterMine(cat,btn) {
@@ -881,7 +1028,15 @@ function openMyVid(i) {
   document.getElementById('my-modal').classList.add('open');
 }
 function closeMyModal(){var v=document.getElementById('my-modal-vid');v.pause();v.src='';document.getElementById('my-modal').classList.remove('open');}
-function delMyVid(i){if(!confirm('Supprimer ?')) return; myVideos.splice(i,1); renderMyVideos();}
+async function delMyVid(i){
+  if(!confirm('Supprimer cette vidéo ?')) return;
+  var v = myVideos[i];
+  try {
+    if(v.supa_id) await dbDelete('videos', v.supa_id);
+  } catch(e) { console.log('delete error:', e); }
+  myVideos.splice(i,1);
+  renderMyVideos();
+}
 
 // ── MUSIC ──
 function buildTracks() {
