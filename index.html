@@ -257,6 +257,103 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
 .my-modal-info{width:calc(100% - 28px);max-width:480px;margin-top:12px}
 .my-modal-nm{font-size:15px;font-weight:500;margin-bottom:3px}
 .my-modal-sub{font-size:11px;color:#555}
+
+/* ══ OPTIMISATION MOBILE ══ */
+@media (max-width: 480px) {
+
+  /* Topbar */
+  .topbar { padding: 36px 14px 12px; }
+  .topbar-name { font-size: 26px; }
+  .t-btn { width: 34px; height: 34px; font-size: 14px; }
+  .t-ava { font-size: 13px; }
+
+  /* Pages */
+  .page { padding: 0 12px; }
+
+  /* Onglets — scroll horizontal sans wrapping */
+  .vtabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    padding-bottom: 6px;
+    gap: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .vtab { 
+    padding: 7px 12px; 
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  /* Admin onglets */
+  #admin-tabs { flex-wrap: nowrap !important; }
+  #admin-tabs .vtab { padding: 7px 10px; font-size: 11px; }
+
+  /* Admin formulaire */
+  .notif-compose { padding: 14px; }
+  .notif-compose textarea { min-height: 80px; }
+
+  /* Formulaire actu — emoji+cat en colonne sur très petit écran */
+  #actu-form > div:first-child { flex-wrap: wrap; }
+
+  /* Ajouter membre — colonne sur mobile */
+  #admin-tab-roles .notif-compose > div:nth-child(2) {
+    flex-direction: column;
+  }
+  #new-member-email, #new-member-name, #new-member-role {
+    width: 100% !important;
+    flex: none !important;
+  }
+
+  /* Hero banner */
+  .hero { padding: 16px; }
+  .hero-title { font-size: 20px; }
+
+  /* Cards événements */
+  .mini-ev { min-width: 130px; padding: 12px; }
+  .mini-ev-day { font-size: 28px; }
+
+  /* Vidéos */
+  .vinfo { padding: 10px 12px 12px; }
+  .vtitle { font-size: 13px; }
+
+  /* Musique */
+  #music-spotify iframe,
+  #music-soundcloud iframe { height: 420px !important; }
+
+  /* Upload modal */
+  .upload-inner { padding: 16px; margin-top: 20px; }
+
+  /* Nav labels */
+  .nav-lbl { font-size: 7px; letter-spacing: 0.5px; }
+  .nav-ico { font-size: 17px; }
+
+  /* Mini player */
+  .mini-player { 
+    width: calc(100% - 16px);
+    bottom: 66px;
+    padding: 9px 12px;
+  }
+
+  /* Section titles */
+  .sec-h { font-size: 22px; }
+  .admin-sec { font-size: 15px; }
+
+  /* Target chips — wrap sur mobile */
+  .target-chips { gap: 6px; }
+  .chip { padding: 5px 10px; font-size: 10px; }
+
+  /* Profil */
+  .prof-ava { width: 64px; height: 64px; font-size: 22px; }
+  .prof-name { font-size: 24px; }
+  .stat-v { font-size: 22px; }
+
+  /* Mrow admin */
+  .mrow-admin { gap: 8px; padding: 10px 12px; }
+  .mrow-ava { width: 30px; height: 30px; font-size: 12px; }
+  .mrow-nm { font-size: 12px; }
+  .mrow-em { font-size: 10px; }
+  .role-sel { font-size: 10px; padding: 4px 6px; min-width: 90px; }
+}
 /* Music iframes */
 #music-spotify iframe, #music-soundcloud iframe {
   display:block;
@@ -1094,6 +1191,8 @@ function startApp() {
 function logout() {
   currentUser = null;
   localStorage.removeItem('tino_session');
+  sessionStorage.removeItem('tino_session');
+  document.cookie = 'tino_session=;path=/;max-age=0';
   document.getElementById('splash').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
   document.getElementById('nav').classList.remove('show');
@@ -1574,7 +1673,10 @@ async function addMember() {
 
 // ── SESSION PERSISTANTE ──
 async function checkSession() {
-  var savedEmail = localStorage.getItem('tino_session');
+  // Essayer localStorage, sessionStorage puis cookie
+  var savedEmail = localStorage.getItem('tino_session')
+    || sessionStorage.getItem('tino_session')
+    || (document.cookie.match(/tino_session=([^;]+)/) || [])[1];
   if (!savedEmail) return; // Pas de session → page de connexion normale
 
   // Reconnexion automatique
@@ -1591,6 +1693,8 @@ async function checkSession() {
     } else {
       // Email non trouvé dans Supabase → effacer session
       localStorage.removeItem('tino_session');
+  sessionStorage.removeItem('tino_session');
+  document.cookie = 'tino_session=;path=/;max-age=0';
       return;
     }
     startApp();
@@ -1602,6 +1706,8 @@ async function checkSession() {
       startApp();
     } else {
       localStorage.removeItem('tino_session');
+  sessionStorage.removeItem('tino_session');
+  document.cookie = 'tino_session=;path=/;max-age=0';
     }
   }
 }
