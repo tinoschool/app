@@ -411,6 +411,63 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
   margin-top:12px;display:flex;justify-content:space-between;align-items:center;
 }
 
+/* ══ AUDIO PLAYER ══ */
+.track-row-audio {
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;background:#181818;
+  border:1px solid #222;border-radius:10px;
+  margin-bottom:7px;cursor:pointer;
+  transition:background .15s,border-color .15s;
+}
+.track-row-audio:hover,.track-row-audio.playing {
+  background:rgba(255,208,0,.07);border-color:rgba(255,208,0,.25);
+}
+.track-disc-audio {
+  width:40px;height:40px;border-radius:50%;
+  background:#222;display:flex;align-items:center;
+  justify-content:center;font-size:16px;flex-shrink:0;
+}
+.track-row-audio.playing .track-disc-audio {
+  background:#FFD000;animation:spin 3s linear infinite;
+}
+.track-info-audio {flex:1;min-width:0}
+.track-nm-audio {
+  font-size:13px;font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  cursor:text;
+}
+.track-row-audio.playing .track-nm-audio {color:#FFD000}
+.track-sub-audio {font-size:10px;color:#555;margin-top:2px}
+.track-dur-audio {font-size:11px;color:#555;flex-shrink:0}
+.track-del-audio {
+  width:26px;height:26px;border-radius:6px;
+  background:rgba(255,68,68,.1);border:none;
+  cursor:pointer;color:#ff6b6b;font-size:11px;
+  flex-shrink:0;display:none;
+}
+.track-row-audio:hover .track-del-audio {display:flex;align-items:center;justify-content:center}
+
+/* Playlist card */
+.playlist-card-item {
+  background:linear-gradient(135deg,rgba(255,208,0,.1),rgba(255,208,0,.03));
+  border:1px solid rgba(255,208,0,.2);border-radius:12px;
+  padding:14px 16px;margin-bottom:10px;cursor:pointer;
+  display:flex;align-items:center;gap:12px;
+  transition:border-color .15s;
+}
+.playlist-card-item:hover {border-color:rgba(255,208,0,.4)}
+.playlist-art-sm {
+  width:44px;height:44px;border-radius:8px;
+  background:#FFD000;display:flex;align-items:center;
+  justify-content:center;font-size:20px;flex-shrink:0;
+}
+.playlist-info-sm {flex:1;min-width:0}
+.playlist-nm-sm {
+  font-family:'Bebas Neue',sans-serif;font-size:16px;
+  letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.playlist-sub-sm {font-size:11px;color:#555;margin-top:2px}
+
 /* ══ OPTIMISATION MOBILE ══ */
 @media (max-width: 480px) {
 
@@ -758,24 +815,22 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
     <div class="sec-h">Musiques</div>
     <div class="sec-s">Spotify · SoundCloud · Nos musiques</div>
 
-    <!-- Onglets -->
     <div class="vtabs" id="music-tabs">
       <button class="vtab active" onclick="switchMusic('spotify',this)">🎵 Spotify</button>
       <button class="vtab" onclick="switchMusic('soundcloud',this)">☁️ SoundCloud</button>
       <button class="vtab" onclick="switchMusic('private',this)">🔒 Nos musiques</button>
     </div>
 
-    <!-- SPOTIFY (public) -->
+    <!-- SPOTIFY -->
     <div id="music-spotify">
-      <p style="font-size:12px;color:#555;margin-bottom:14px">Playlist officielle Tinoschool — accessible à tous les membres</p>
+      <p style="font-size:12px;color:#555;margin-bottom:14px">Playlist officielle Tinoschool</p>
       <iframe style="border-radius:12px;display:block;width:100%" src="https://open.spotify.com/embed/playlist/46nMC4oUXB3vc5z8z2Q9Ol?utm_source=generator" width="100%" height="500" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     </div>
 
-    <!-- SOUNDCLOUD (public) -->
+    <!-- SOUNDCLOUD -->
     <div id="music-soundcloud" style="display:none">
-      <p style="font-size:12px;color:#555;margin-bottom:14px">Playlist Hip-Hop Freestyle Dance Beats — accessible à tous les membres</p>
-      <iframe width="100%" height="500" scrolling="no" frameborder="no" allow="autoplay"
-        style="border-radius:12px;display:block;width:100%"
+      <p style="font-size:12px;color:#555;margin-bottom:14px">Playlist Hip-Hop Freestyle Dance Beats</p>
+      <iframe width="100%" height="500" scrolling="no" frameborder="no" allow="autoplay" style="border-radius:12px;display:block;width:100%"
         src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/teeganlauren/sets/hip-hop-freestyle-dance-beats&color=%23FFD000&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true">
       </iframe>
       <div style="font-size:11px;color:#333;margin-top:6px;text-align:center">
@@ -783,20 +838,67 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
       </div>
     </div>
 
-    <!-- NOS MUSIQUES (adhérents) -->
-    <div id="music-private">
+    <!-- NOS MUSIQUES -->
+    <div id="music-private" style="display:none">
       <div class="locked" id="music-private-wrap">
-        <div id="music-content">
-          <div class="playlist"><div class="playlist-art">🎵</div><div><h3>Spectacle 2026</h3><p>6 titres · Playlist officielle</p></div></div>
-          <div id="tracklist"></div>
-          <div style="height:1px;background:#1f1f1f;margin:16px 0"></div>
-          <div class="playlist" style="margin-bottom:14px"><div class="playlist-art">🔥</div><div><h3>Échauffements</h3><p>3 titres · Cours hebdo</p></div></div>
-          <div id="tracklist2"></div>
+        <div id="music-private-content">
+
+          <!-- Admin : bouton upload + créer playlist -->
+          <div id="music-admin-bar" style="display:none;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+            <button class="btn-login" onclick="openMusicUpload()" style="flex:1;font-size:11px;padding:11px;min-width:140px">
+              ➕ Ajouter des musiques
+            </button>
+            <button class="btn-login" onclick="openCreatePlaylist()" style="flex:1;font-size:11px;padding:11px;min-width:140px;background:#222;color:#FFD000;border:1px solid rgba(255,208,0,.3)">
+              📋 Créer une playlist
+            </button>
+          </div>
+
+          <!-- Filtres -->
+          <div class="search-bar-wrap" style="margin-bottom:14px">
+            <div class="filter-label">Catégorie</div>
+            <div class="tag-filter-row">
+              <button class="tag-filter active" data-tag="all" onclick="setMusicTag('all',this)">Tout</button>
+              <button class="tag-filter" data-tag="Freestyle" onclick="setMusicTag('Freestyle',this)">Freestyle</button>
+              <button class="tag-filter" data-tag="Chorégraphie" onclick="setMusicTag('Chorégraphie',this)">Chorégraphie</button>
+              <button class="tag-filter" data-tag="Spectacle" onclick="setMusicTag('Spectacle',this)">Spectacle</button>
+              <button class="tag-filter" data-tag="Battle" onclick="setMusicTag('Battle',this)">Battle</button>
+              <button class="tag-filter" data-tag="Autres" onclick="setMusicTag('Autres',this)">Autres</button>
+            </div>
+            <div class="filter-label" style="margin-top:10px">Cours</div>
+            <select class="fl-input search-select" id="music-cours-filter" onchange="renderMusicSection()">
+              <option value="">Tous les cours</option>
+                <option>Éveil 1</option>
+                <option>Éveil 2</option>
+                <option>Enfants Débutant</option>
+                <option>Enfants Intermédiaire</option>
+                <option>Enfants Avancés</option>
+                <option>Ateliers Chorégraphique</option>
+                <option>Ados Débutant</option>
+                <option>Ados Intermédiaire</option>
+                <option>Ados Avancés</option>
+                <option>Adultes</option>
+                <option>Semi-Pro</option>
+                <option>Pro</option>
+                <option>Villepinte Éveil</option>
+                <option>Villepinte Kids</option>
+            </select>
+          </div>
+
+          <!-- Playlists -->
+          <div id="playlists-section" style="margin-bottom:20px"></div>
+
+          <!-- Toutes les musiques -->
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px">Toutes les musiques</span>
+            <span style="font-size:11px;color:#FFD000" id="tracks-count">0 titre</span>
+          </div>
+          <div id="tracks-list"></div>
+
         </div>
         <div class="lock-overlay" id="music-private-lock" style="display:none">
-          <div class="lock-icon">🔒</div>
+          <div class="lock-icon">🎵</div>
           <div class="lock-title">Accès Adhérents</div>
-          <div class="lock-desc">Les musiques uploadées sont réservées aux adhérents de l'association.</div>
+          <div class="lock-desc">Les musiques sont réservées aux adhérents.</div>
           <div class="lock-pill">Réserver votre abonnement</div>
         </div>
       </div>
@@ -1035,6 +1137,133 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
   <button class="vmodal-close" onclick="closeVModal()">✕</button>
   <div class="vmodal-player"><iframe id="vmodal-iframe" allowfullscreen allow="autoplay;encrypted-media"></iframe></div>
   <div class="vmodal-title" id="vmodal-title"></div>
+</div>
+
+<!-- MUSIC UPLOAD MODAL -->
+<div class="upload-modal" id="music-upload-modal">
+  <div class="upload-inner" style="max-height:85vh;overflow-y:auto">
+    <button class="up-close" onclick="closeMusicUpload()">✕</button>
+    <h3>🎵 Ajouter des musiques</h3>
+
+    <!-- Upload zone multiple -->
+    <div class="drop-zone" style="padding:16px;margin-bottom:16px;position:relative">
+      <input type="file" accept="audio/*" multiple id="audio-file-input"
+             style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%"
+             onchange="handleAudioFiles(this.files)">
+      <div style="font-size:28px;margin-bottom:6px">🎵</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1.5px;margin-bottom:3px">Choisir des fichiers audio</div>
+      <div style="font-size:11px;color:#555">MP3, WAV, M4A · Plusieurs fichiers possibles</div>
+    </div>
+
+    <!-- Tag global -->
+    <div class="fl" style="margin-bottom:12px">
+      <div class="fl-label">Tag (pour tous les fichiers)</div>
+      <div class="tag-btn-row" id="music-tag-btn-row" style="margin-top:8px">
+              <button type="button" class="tag-btn" data-tag="Freestyle" onclick="selectMusicUploadTag(this)">Freestyle</button>
+              <button type="button" class="tag-btn" data-tag="Chorégraphie" onclick="selectMusicUploadTag(this)">Chorégraphie</button>
+              <button type="button" class="tag-btn" data-tag="Spectacle" onclick="selectMusicUploadTag(this)">Spectacle</button>
+              <button type="button" class="tag-btn" data-tag="Battle" onclick="selectMusicUploadTag(this)">Battle</button>
+              <button type="button" class="tag-btn" data-tag="Autres" onclick="selectMusicUploadTag(this)">Autres</button>
+      </div>
+      <input type="hidden" id="music-upload-tag" value="">
+    </div>
+
+    <!-- Cours global -->
+    <div class="fl" style="margin-bottom:16px">
+      <div class="fl-label">Cours (facultatif)</div>
+      <select class="fl-input" id="music-upload-cours" style="margin-top:5px">
+        <option value="">— Cours —</option>
+                <option>Éveil 1</option>
+                <option>Éveil 2</option>
+                <option>Enfants Débutant</option>
+                <option>Enfants Intermédiaire</option>
+                <option>Enfants Avancés</option>
+                <option>Ateliers Chorégraphique</option>
+                <option>Ados Débutant</option>
+                <option>Ados Intermédiaire</option>
+                <option>Ados Avancés</option>
+                <option>Adultes</option>
+                <option>Semi-Pro</option>
+                <option>Pro</option>
+                <option>Villepinte Éveil</option>
+                <option>Villepinte Kids</option>
+      </select>
+    </div>
+
+    <!-- Liste des fichiers sélectionnés -->
+    <div id="audio-files-list" style="margin-bottom:16px"></div>
+
+    <!-- Progress -->
+    <div class="prog-wrap" id="music-prog-wrap">
+      <div class="prog-lbl"><span id="music-prog-name">Upload…</span><span id="music-prog-pct">0%</span></div>
+      <div class="prog-bg"><div class="prog-fill" id="music-prog-fill"></div></div>
+    </div>
+
+    <button class="btn-login" onclick="submitMusicUpload()" id="music-upload-btn" style="font-size:11px;padding:12px">
+      📤 Uploader les musiques
+    </button>
+    <div class="up-err" id="music-up-err"></div>
+  </div>
+</div>
+
+<!-- CREATE PLAYLIST MODAL -->
+<div class="upload-modal" id="playlist-modal">
+  <div class="upload-inner">
+    <button class="up-close" onclick="closeCreatePlaylist()">✕</button>
+    <h3>📋 Créer une playlist</h3>
+    <div class="fl" style="margin-bottom:12px">
+      <div class="fl-label">Nom de la playlist *</div>
+      <input class="fl-input" id="playlist-name" placeholder="Ex: Spectacle 2026" style="margin-top:5px">
+    </div>
+    <div class="fl" style="margin-bottom:16px">
+      <div class="fl-label">Description (facultatif)</div>
+      <input class="fl-input" id="playlist-desc" placeholder="Ex: Musiques du spectacle de fin d'année" style="margin-top:5px">
+    </div>
+    <div class="fl" style="margin-bottom:16px">
+      <div class="fl-label">Ajouter des musiques</div>
+      <div id="playlist-tracks-select" style="margin-top:8px;max-height:200px;overflow-y:auto;background:#111;border-radius:8px;padding:8px"></div>
+    </div>
+    <button class="btn-login" onclick="savePlaylist()" style="font-size:11px;padding:12px">💾 Créer la playlist</button>
+    <div class="up-err" id="playlist-err"></div>
+  </div>
+</div>
+
+<!-- AUDIO PLAYER MODAL -->
+<div class="photo-modal" id="audio-player-modal">
+  <button class="vmodal-close" onclick="closeAudioPlayer()">✕</button>
+  <div style="width:calc(100% - 32px);max-width:480px">
+    <!-- Artwork -->
+    <div style="width:180px;height:180px;border-radius:16px;background:linear-gradient(135deg,#FFD000,#ff8c00);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:64px;animation:spin 4s linear infinite" id="audio-artwork">🎵</div>
+    <!-- Infos -->
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px" id="audio-title">—</div>
+      <div style="font-size:12px;color:#555;margin-top:3px" id="audio-meta">—</div>
+    </div>
+    <!-- Barre de progression -->
+    <div style="margin-bottom:12px">
+      <input type="range" id="audio-seek" value="0" min="0" max="100" step="0.1"
+             style="width:100%;accent-color:#FFD000;cursor:pointer"
+             oninput="seekAudio(this.value)">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#555;margin-top:4px">
+        <span id="audio-current">0:00</span>
+        <span id="audio-duration">0:00</span>
+      </div>
+    </div>
+    <!-- Contrôles -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:16px">
+      <button onclick="prevTrack()" style="width:42px;height:42px;border-radius:50%;background:#222;border:1px solid #333;color:#f0f0f0;font-size:16px;cursor:pointer">⏮</button>
+      <button id="audio-play-btn" onclick="toggleAudio()" style="width:58px;height:58px;border-radius:50%;background:#FFD000;border:none;color:#000;font-size:22px;cursor:pointer">▶</button>
+      <button onclick="nextTrack()" style="width:42px;height:42px;border-radius:50%;background:#222;border:1px solid #333;color:#f0f0f0;font-size:16px;cursor:pointer">⏭</button>
+    </div>
+    <!-- Volume -->
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:14px">🔈</span>
+      <input type="range" id="audio-volume" value="80" min="0" max="100"
+             style="flex:1;accent-color:#FFD000;cursor:pointer"
+             oninput="setVolume(this.value)">
+      <span style="font-size:14px">🔊</span>
+    </div>
+  </div>
 </div>
 
 <!-- PHOTO MODAL -->
@@ -1699,7 +1928,8 @@ function startApp() {
   if (u.role !== 'membre') {
     loadMyVideos();
     loadCommunityVideos();
-    loadPrivateTracks();
+    loadTracks();
+    loadPlaylists();
   }
 }
 
@@ -2142,9 +2372,12 @@ function switchMusic(tab, btn) {
   var btns = document.getElementById('music-tabs').querySelectorAll('.vtab');
   for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
   btn.classList.add('active');
-  document.getElementById('music-spotify').style.display    = tab==='spotify'     ? 'block' : 'none';
-  document.getElementById('music-soundcloud').style.display = tab==='soundcloud'  ? 'block' : 'none';
-  document.getElementById('music-private').style.display    = tab==='private'     ? 'block' : 'none';
+  document.getElementById('music-spotify').style.display    = tab==='spotify'    ? 'block' : 'none';
+  document.getElementById('music-soundcloud').style.display = tab==='soundcloud' ? 'block' : 'none';
+  document.getElementById('music-private').style.display    = tab==='private'    ? 'block' : 'none';
+  if (tab==='private') {
+    renderMusicSection();
+  }
 }
 
 // ── CALENDAR VIEW ──
@@ -2451,6 +2684,408 @@ function deleteCurrentPhoto() {
   photos.splice(currentPhotoIdx,1);
   renderPhotos();
   closePhotoModal();
+}
+
+// ══════════════════════════════════════
+//   MUSIQUES — Upload + Playlists + Lecteur
+// ══════════════════════════════════════
+
+var allTracks = [];       // toutes les musiques chargées
+var allPlaylists = [];    // toutes les playlists
+var currentPlaylist = []; // tracks en cours de lecture
+var currentTrackIdx = -1;
+var audioEl = null;       // élément Audio natif
+var musicTagFilter = 'all';
+var pendingAudioFiles = [];
+
+// ── INIT AUDIO ──
+function initAudio() {
+  if (!audioEl) {
+    audioEl = new Audio();
+    audioEl.volume = 0.8;
+    audioEl.addEventListener('timeupdate', updateAudioProgress);
+    audioEl.addEventListener('ended', nextTrack);
+    audioEl.addEventListener('loadedmetadata', function(){
+      document.getElementById('audio-duration').textContent = fmtTime(audioEl.duration);
+    });
+  }
+}
+
+function fmtTime(s) {
+  if (isNaN(s)) return '0:00';
+  var m = Math.floor(s/60), sec = Math.floor(s%60);
+  return m + ':' + (sec<10?'0':'')+sec;
+}
+
+function updateAudioProgress() {
+  var pct = audioEl.duration ? (audioEl.currentTime/audioEl.duration)*100 : 0;
+  var seek = document.getElementById('audio-seek');
+  if (seek) seek.value = pct;
+  var cur = document.getElementById('audio-current');
+  if (cur) cur.textContent = fmtTime(audioEl.currentTime);
+}
+
+// ── LOAD TRACKS & PLAYLISTS ──
+async function loadTracks() {
+  try {
+    var data = await dbSelect('tracks', '');
+    if (Array.isArray(data)) {
+      allTracks = data;
+      renderMusicSection();
+    }
+  } catch(e) { console.log('loadTracks error:', e); }
+}
+
+async function loadPlaylists() {
+  try {
+    var data = await dbSelect('playlists', '');
+    if (Array.isArray(data)) {
+      allPlaylists = data;
+      renderMusicSection();
+    }
+  } catch(e) { console.log('loadPlaylists error:', e); }
+}
+
+// ── FILTRES MUSIQUE ──
+function setMusicTag(tag, btn) {
+  musicTagFilter = tag;
+  document.querySelectorAll('#music-private-content .tag-filter').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderMusicSection();
+}
+
+// ── RENDER SECTION MUSIQUE ──
+function renderMusicSection() {
+  renderPlaylists();
+  renderTracks();
+  // Montrer la barre admin si admin
+  var bar = document.getElementById('music-admin-bar');
+  if (bar) bar.style.display = currentUser && currentUser.role==='admin' ? 'flex' : 'none';
+}
+
+function renderPlaylists() {
+  var el = document.getElementById('playlists-section');
+  if (!el || !allPlaylists.length) return;
+  el.innerHTML = '<div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;margin-bottom:10px">Playlists</div>'
+    + allPlaylists.map(function(pl) {
+      var trackIds = pl.track_ids || [];
+      return '<div class="playlist-card-item" onclick="openPlaylist(''+pl.id+'')">'
+        +'<div class="playlist-art-sm">🎵</div>'
+        +'<div class="playlist-info-sm">'
+          +'<div class="playlist-nm-sm">'+pl.name+'</div>'
+          +'<div class="playlist-sub-sm">'+trackIds.length+' titre'+(trackIds.length>1?'s':'')+
+            (pl.description?' · '+pl.description:'')+'</div>'
+        +'</div>'
+        +(currentUser&&currentUser.role==='admin'
+          ?'<button onclick="deletePlaylist(event,''+pl.id+'')" style="background:rgba(255,68,68,.1);border:none;border-radius:6px;color:#ff6b6b;font-size:12px;padding:6px 8px;cursor:pointer">🗑</button>'
+          :'<span style="color:#555;font-size:14px">▶</span>')
+        +'</div>';
+    }).join('');
+}
+
+function renderTracks() {
+  var el = document.getElementById('tracks-list');
+  var countEl = document.getElementById('tracks-count');
+  if (!el) return;
+  var coursFilter = (document.getElementById('music-cours-filter')||{}).value || '';
+  var filtered = allTracks.filter(function(t){
+    var tagOk  = musicTagFilter==='all' || t.tag===musicTagFilter;
+    var coursOk = !coursFilter || t.cours===coursFilter;
+    return tagOk && coursOk;
+  });
+  if (countEl) countEl.textContent = filtered.length+' titre'+(filtered.length>1?'s':'');
+  if (!filtered.length) {
+    el.innerHTML='<div class="empty"><span class="empty-ico">🎵</span><p>Aucune musique pour ces critères.</p></div>';
+    return;
+  }
+  el.innerHTML = filtered.map(function(t,i){
+    var isPlaying = currentPlaylist.length && currentPlaylist[currentTrackIdx] && currentPlaylist[currentTrackIdx].id===t.id;
+    return '<div class="track-row-audio'+(isPlaying?' playing':'')+'" id="trow-'+t.id+'" onclick="playFromList(''+t.id+'',filtered)">'
+      +'<div class="track-disc-audio">🎵</div>'
+      +'<div class="track-info-audio">'
+        +'<div class="track-nm-audio" onclick="event.stopPropagation();startRename(this,''+t.id+'')" title="Cliquer pour renommer">'+t.name+'</div>'
+        +'<div class="track-sub-audio">'+(t.tag||'')+(t.cours?' · '+t.cours:'')+'</div>'
+      +'</div>'
+      +'<div class="track-dur-audio">'+(t.duration||'—')+'</div>'
+      +(currentUser&&currentUser.role==='admin'
+        ?'<button class="track-del-audio" onclick="event.stopPropagation();deleteTrack(''+t.id+'')">🗑</button>'
+        :'')
+      +'</div>';
+  }).join('');
+  // Rendre filtered accessible pour playFromList
+  window._lastFilteredTracks = filtered;
+}
+
+// ── RENOMMER UN TITRE (inline) ──
+async function startRename(el, trackId) {
+  if (!currentUser || currentUser.role !== 'admin') return;
+  var oldName = el.textContent;
+  var input = document.createElement('input');
+  input.value = oldName;
+  input.style.cssText = 'background:#222;border:1px solid #FFD000;border-radius:5px;color:#fff;font-size:13px;padding:3px 7px;width:100%;outline:none;font-family:DM Sans,sans-serif';
+  el.replaceWith(input);
+  input.focus(); input.select();
+  async function save() {
+    var newName = input.value.trim() || oldName;
+    // Sauvegarder dans Supabase
+    try {
+      await fetch(SUPA_URL+'/rest/v1/tracks?id=eq.'+trackId, {
+        method:'PATCH', headers:Object.assign({},SUPA_HEADERS,{'Prefer':'return=representation'}),
+        body:JSON.stringify({name:newName})
+      });
+      var t = allTracks.find(function(t){return t.id===trackId;});
+      if(t) t.name = newName;
+    } catch(e) {}
+    renderTracks();
+  }
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter'){e.preventDefault();save();}});
+}
+
+// ── LECTEUR AUDIO ──
+function playFromList(trackId, list) {
+  initAudio();
+  currentPlaylist = list || window._lastFilteredTracks || allTracks;
+  currentTrackIdx = currentPlaylist.findIndex(function(t){ return t.id===trackId; });
+  if (currentTrackIdx < 0) return;
+  loadAndPlay(currentTrackIdx);
+  openAudioPlayer();
+}
+
+function openPlaylist(playlistId) {
+  var pl = allPlaylists.find(function(p){ return p.id===playlistId; });
+  if (!pl) return;
+  var ids = pl.track_ids || [];
+  var tracks = ids.map(function(id){ return allTracks.find(function(t){ return t.id===id; }); }).filter(Boolean);
+  if (!tracks.length) { alert('Cette playlist est vide.'); return; }
+  initAudio();
+  currentPlaylist = tracks;
+  currentTrackIdx = 0;
+  loadAndPlay(0);
+  openAudioPlayer();
+}
+
+function loadAndPlay(idx) {
+  if (idx < 0 || idx >= currentPlaylist.length) return;
+  var t = currentPlaylist[idx];
+  currentTrackIdx = idx;
+  audioEl.src = t.url;
+  audioEl.play();
+  document.getElementById('audio-title').textContent = t.name;
+  document.getElementById('audio-meta').textContent = (t.tag||'')+(t.cours?' · '+t.cours:'');
+  document.getElementById('audio-play-btn').textContent = '⏸';
+  // Highlight
+  document.querySelectorAll('.track-row-audio').forEach(function(r){ r.classList.remove('playing'); });
+  var row = document.getElementById('trow-'+t.id);
+  if (row) row.classList.add('playing');
+}
+
+function openAudioPlayer() {
+  document.getElementById('audio-player-modal').classList.add('open');
+}
+
+function closeAudioPlayer() {
+  document.getElementById('audio-player-modal').classList.remove('open');
+  if (audioEl) audioEl.pause();
+  document.getElementById('audio-play-btn').textContent = '▶';
+}
+
+function toggleAudio() {
+  if (!audioEl) return;
+  if (audioEl.paused) {
+    audioEl.play();
+    document.getElementById('audio-play-btn').textContent = '⏸';
+  } else {
+    audioEl.pause();
+    document.getElementById('audio-play-btn').textContent = '▶';
+  }
+}
+
+function prevTrack() {
+  if (currentTrackIdx > 0) loadAndPlay(currentTrackIdx - 1);
+}
+
+function nextTrack() {
+  if (currentTrackIdx < currentPlaylist.length - 1) loadAndPlay(currentTrackIdx + 1);
+  else { if(audioEl) audioEl.pause(); document.getElementById('audio-play-btn').textContent='▶'; }
+}
+
+function seekAudio(val) {
+  if (audioEl && audioEl.duration) audioEl.currentTime = (val/100)*audioEl.duration;
+}
+
+function setVolume(val) {
+  if (audioEl) audioEl.volume = val/100;
+}
+
+// ── UPLOAD MUSIQUES (admin) ──
+function openMusicUpload() {
+  document.getElementById('music-upload-modal').classList.add('open');
+  document.getElementById('audio-files-list').innerHTML = '';
+  document.getElementById('music-up-err').style.display = 'none';
+  pendingAudioFiles = [];
+}
+
+function closeMusicUpload() {
+  document.getElementById('music-upload-modal').classList.remove('open');
+  document.getElementById('audio-file-input').value = '';
+  pendingAudioFiles = [];
+}
+
+function selectMusicUploadTag(btn) {
+  document.querySelectorAll('#music-tag-btn-row .tag-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('music-upload-tag').value = btn.dataset.tag;
+}
+
+function handleAudioFiles(files) {
+  if (!files || !files.length) return;
+  pendingAudioFiles = Array.from(files);
+  var listEl = document.getElementById('audio-files-list');
+  listEl.innerHTML = '<div class="filter-label" style="margin-bottom:8px">Fichiers sélectionnés ('+files.length+')</div>'
+    + pendingAudioFiles.map(function(f, i) {
+      return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#111;border-radius:7px;margin-bottom:6px">'
+        +'<span style="font-size:14px">🎵</span>'
+        +'<input value="'+f.name.replace(/\.[^.]+$/,'')+'" data-idx="'+i+'"'
+        +' style="flex:1;background:transparent;border:none;border-bottom:1px solid #333;color:#f0f0f0;font-size:12px;padding:2px 4px;outline:none;font-family:DM Sans,sans-serif">'
+        +'<span style="font-size:10px;color:#555">'+fmtSize(f.size)+'</span>'
+        +'</div>';
+    }).join('');
+}
+
+async function submitMusicUpload() {
+  var tag   = document.getElementById('music-upload-tag').value;
+  var cours = document.getElementById('music-upload-cours').value;
+  var err   = document.getElementById('music-up-err');
+  err.style.display = 'none';
+  if (!pendingAudioFiles.length) { err.textContent='Sélectionne des fichiers.'; err.style.display='block'; return; }
+  if (!tag) { err.textContent='Choisis un tag.'; err.style.display='block'; return; }
+
+  var btn = document.getElementById('music-upload-btn');
+  btn.disabled = true; btn.textContent = '⏳ Upload en cours…';
+
+  var prog  = document.getElementById('music-prog-wrap');
+  var fill  = document.getElementById('music-prog-fill');
+  var pct   = document.getElementById('music-prog-pct');
+  var pname = document.getElementById('music-prog-name');
+  prog.classList.add('show');
+
+  var nameInputs = document.querySelectorAll('#audio-files-list input');
+  var uploaded = 0;
+
+  for (var i = 0; i < pendingAudioFiles.length; i++) {
+    var file = pendingAudioFiles[i];
+    var customName = nameInputs[i] ? nameInputs[i].value.trim() : file.name.replace(/\.[^.]+$/, '');
+    pname.textContent = (i+1) + '/' + pendingAudioFiles.length + ' — ' + customName;
+    fill.style.width = Math.round((i / pendingAudioFiles.length) * 100) + '%';
+    pct.textContent  = Math.round((i / pendingAudioFiles.length) * 100) + '%';
+
+    try {
+      // 1. Upload vers Cloudinary (supporte audio nativement)
+      var fd = new FormData();
+      fd.append('file', file);
+      fd.append('upload_preset', CL_PRESET);
+      fd.append('folder', 'tinoschool/audio');
+      fd.append('resource_type', 'auto');
+
+      var clRes = await fetch(
+        'https://api.cloudinary.com/v1_1/' + CL_CLOUD + '/auto/upload',
+        { method: 'POST', body: fd }
+      );
+      var clData = await clRes.json();
+
+      if (!clData.secure_url) throw new Error('Cloudinary : ' + (clData.error && clData.error.message || 'Upload échoué'));
+
+      // 2. Sauvegarder métadonnées dans Supabase
+      await dbInsert('tracks', {
+        name:           customName,
+        url:            clData.secure_url,
+        tag:            tag,
+        cours:          cours || null,
+        size:           fmtSize(file.size),
+        duration:       clData.duration ? fmtTime(clData.duration) : null,
+        cloudinary_id:  clData.public_id
+      });
+
+      uploaded++;
+    } catch(e) {
+      console.error('upload track error:', e);
+      alert('⚠️ Erreur sur "' + customName + '" : ' + e.message);
+    }
+  }
+
+  fill.style.width = '100%'; pct.textContent = '100%';
+  btn.disabled = false; btn.textContent = '📤 Uploader les musiques';
+  prog.classList.remove('show');
+
+  await loadTracks();
+  closeMusicUpload();
+  if (uploaded > 0) alert('✅ ' + uploaded + ' musique(s) uploadée(s) sur Cloudinary !');
+  pendingAudioFiles = [];
+}
+
+async function deleteTrack(trackId) {
+  if (!confirm('Supprimer cette musique ?')) return;
+  try {
+    // Trouver le cloudinary_id pour suppression optionnelle
+    var track = allTracks.find(function(t){ return t.id===trackId; });
+    // Supprimer de Supabase
+    await dbDelete('tracks', trackId);
+    allTracks = allTracks.filter(function(t){ return t.id!==trackId; });
+    // Supprimer des playlists localement
+    allPlaylists.forEach(function(pl){
+      if (pl.track_ids) pl.track_ids = pl.track_ids.filter(function(id){ return id!==trackId; });
+    });
+    renderMusicSection();
+  } catch(e) { alert('Erreur : '+e.message); }
+}
+
+// ── PLAYLISTS ──
+function openCreatePlaylist() {
+  document.getElementById('playlist-modal').classList.add('open');
+  document.getElementById('playlist-name').value='';
+  document.getElementById('playlist-desc').value='';
+  document.getElementById('playlist-err').style.display='none';
+  // Afficher les tracks à cocher
+  var sel = document.getElementById('playlist-tracks-select');
+  if (!allTracks.length) { sel.innerHTML='<p style="font-size:12px;color:#555;padding:8px">Aucune musique disponible</p>'; return; }
+  sel.innerHTML = allTracks.map(function(t){
+    return '<label style="display:flex;align-items:center;gap:8px;padding:7px 8px;cursor:pointer;border-radius:6px;transition:background .1s" onmouseover="this.style.background='#1f1f1f'" onmouseout="this.style.background=''">'
+      +'<input type="checkbox" value="'+t.id+'" style="accent-color:#FFD000;width:15px;height:15px">'
+      +'<span style="font-size:13px">'+t.name+'</span>'
+      +'<span style="font-size:10px;color:#555;margin-left:auto">'+(t.tag||'')+'</span>'
+      +'</label>';
+  }).join('');
+}
+
+function closeCreatePlaylist() {
+  document.getElementById('playlist-modal').classList.remove('open');
+}
+
+async function savePlaylist() {
+  var name = document.getElementById('playlist-name').value.trim();
+  var desc = document.getElementById('playlist-desc').value.trim();
+  var err  = document.getElementById('playlist-err');
+  err.style.display='none';
+  if (!name) { err.textContent='Le nom est obligatoire.'; err.style.display='block'; return; }
+  var checked = Array.from(document.querySelectorAll('#playlist-tracks-select input:checked')).map(function(cb){ return cb.value; });
+  try {
+    var saved = await dbInsert('playlists', { name:name, description:desc, track_ids:checked });
+    if (saved && saved[0]) allPlaylists.unshift(saved[0]);
+    closeCreatePlaylist();
+    renderMusicSection();
+    alert('✅ Playlist "'+name+'" créée avec '+checked.length+' titre(s) !');
+  } catch(e) { err.textContent='Erreur : '+e.message; err.style.display='block'; }
+}
+
+async function deletePlaylist(event, playlistId) {
+  event.stopPropagation();
+  if (!confirm('Supprimer cette playlist ?')) return;
+  try {
+    await dbDelete('playlists', playlistId);
+    allPlaylists = allPlaylists.filter(function(p){ return p.id!==playlistId; });
+    renderMusicSection();
+  } catch(e) { alert('Erreur : '+e.message); }
 }
 
 // ── KEYBOARD ──
