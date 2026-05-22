@@ -1912,10 +1912,11 @@ function startApp() {
   // Seuls les membres simples sont restreints
   // Adhérents ET admins ont accès à tout
   var isRestricted = u.role === 'membre';
-  document.getElementById('mine-lock').style.display = isRestricted ? 'flex' : 'none';
-  document.getElementById('music-private-lock').style.display = isRestricted ? 'flex' : 'none';
-  document.getElementById('community-lock').style.display = isRestricted ? 'flex' : 'none';
-  document.getElementById('photos-lock').style.display = isRestricted ? 'flex' : 'none';
+  function setLock(id, show) { var el=document.getElementById(id); if(el) el.style.display=show?'flex':'none'; }
+  setLock('mine-lock', isRestricted);
+  setLock('music-private-lock', isRestricted);
+  setLock('community-lock', isRestricted);
+  setLock('photos-lock', isRestricted);
   // show
   document.getElementById('splash').style.display = 'none';
   document.getElementById('app').style.display = 'block';
@@ -2151,18 +2152,12 @@ async function delMyVid(i){
 
 // ── MUSIC ──
 function buildTracks() {
-  document.getElementById('tracklist').innerHTML=TRACKS.map(function(t,i){
-    return '<div class="track" onclick="playTrack(this,\''+t.n+'\',\''+t.s+'\')">'
-      +'<div class="tr-n">'+(i+1)+'</div><div class="tr-disc">🎵</div>'
-      +'<div class="tr-info"><div class="tr-nm">'+t.n+'</div><div class="tr-st">'+t.s+'</div></div>'
-      +'<div class="tr-dur">'+t.d+'</div></div>';
-  }).join('');
-  document.getElementById('tracklist2').innerHTML=TRACKS2.map(function(t){
-    return '<div class="track" onclick="playTrack(this,\''+t.n+'\',\''+t.s+'\')">'
-      +'<div class="tr-n">—</div><div class="tr-disc">🔥</div>'
-      +'<div class="tr-info"><div class="tr-nm">'+t.n+'</div><div class="tr-st">'+t.s+'</div></div>'
-      +'<div class="tr-dur">'+t.d+'</div></div>';
-  }).join('');
+  // Les tracklists statiques ont été remplacées par Supabase
+  // Cette fonction est conservée pour compatibilité mais ne fait rien
+  var t1 = document.getElementById('tracklist');
+  var t2 = document.getElementById('tracklist2');
+  if (t1) t1.innerHTML = '';
+  if (t2) t2.innerHTML = '';
 }
 function playTrack(el,name,style){
   if(currentUser&&currentUser.role==='membre') return;
@@ -2515,28 +2510,34 @@ function updateProfileDisplay() {
   var u = currentUser;
   var profile = u.profile || {};
 
+  // Helper sécurisé
+  function setTxt(id, val) { var el=document.getElementById(id); if(el) el.textContent=val; }
+  function setHTML(id, val) { var el=document.getElementById(id); if(el) el.innerHTML=val; }
+
   // Topbar
-  document.getElementById('u-name').textContent = profile.prenom || u.name.split(' ')[0];
+  setTxt('u-name', profile.prenom || u.name.split(' ')[0]);
 
   // Photo dans profil principal
   var photoEl = document.getElementById('p-photo');
-  if (u.photoUrl) {
-    photoEl.innerHTML = '<img src="'+u.photoUrl+'" alt="photo" style="width:100%;height:100%;object-fit:cover;display:block">';
-  } else {
-    photoEl.innerHTML = '<span id="p-ava">'+u.initials+'</span>';
+  if (photoEl) {
+    if (u.photoUrl) {
+      photoEl.innerHTML = '<img src="'+u.photoUrl+'" alt="photo" style="width:100%;height:100%;object-fit:cover;display:block">';
+    } else {
+      photoEl.innerHTML = '<span id="p-ava">'+u.initials+'</span>';
+    }
   }
 
   // Nom et pseudo
-  document.getElementById('p-name').textContent = (profile.prenom||'') + ' ' + (profile.nom||u.name);
-  var pseudoEl = document.getElementById('p-pseudo');
-  pseudoEl.textContent = profile.pseudo ? profile.pseudo : '';
+  var displayName = ((profile.prenom||'') + ' ' + (profile.nom||u.name)).trim() || u.name;
+  setTxt('p-name', displayName);
+  setTxt('p-pseudo', profile.pseudo || '');
 
   // Infos display
   var lines = [];
   if (profile.age)   lines.push('<span style="color:#888;font-size:12px">🎂 '+profile.age+' ans</span>');
   if (profile.eleve) lines.push('<span style="color:#888;font-size:12px">👶 Élève : '+profile.eleve+'</span>');
   lines.push('<span style="color:#555;font-size:11px">✉️ '+u.email+'</span>');
-  document.getElementById('p-infos-display').innerHTML = lines.join('');
+  setHTML('p-infos-display', lines.join(''));
 }
 
 // ── SESSION PERSISTANTE ──
@@ -2552,12 +2553,12 @@ async function checkSession() {
     var dbMember = await getMemberFromDB(savedEmail);
     if (dbMember) {
       currentUser = {
-        id: dbMember.id,
-        name: dbMember.name || savedEmail.split('@')[0],
-        email: dbMember.email,
+        id:       dbMember.id,
+        name:     dbMember.name || savedEmail.split('@')[0],
+        email:    dbMember.email,
         initials: dbMember.initials || savedEmail.slice(0,2).toUpperCase(),
-        role: dbMember.role,
-        profile: dbMember.profile || {},
+        role:     dbMember.role || 'membre',
+        profile:  dbMember.profile || {},
         photoUrl: dbMember.profile ? dbMember.profile.photoUrl : null
       };
     } else {
@@ -2766,20 +2767,22 @@ function renderMusicSection() {
 function renderPlaylists() {
   var el = document.getElementById('playlists-section');
   if (!el || !allPlaylists.length) return;
-  el.innerHTML = '<div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;margin-bottom:10px">Playlists</div>'
+  var isAdmin = currentUser && currentUser.role === 'admin';
+  el.innerHTML = '<div style="font-size:18px;font-weight:600;margin-bottom:10px;color:#f0f0f0">Playlists</div>'
     + allPlaylists.map(function(pl) {
       var trackIds = pl.track_ids || [];
-      return '<div class="playlist-card-item" onclick="openPlaylist(''+pl.id+'')">'
-        +'<div class="playlist-art-sm">🎵</div>'
-        +'<div class="playlist-info-sm">'
-          +'<div class="playlist-nm-sm">'+pl.name+'</div>'
-          +'<div class="playlist-sub-sm">'+trackIds.length+' titre'+(trackIds.length>1?'s':'')+
-            (pl.description?' · '+pl.description:'')+'</div>'
-        +'</div>'
-        +(currentUser&&currentUser.role==='admin'
-          ?'<button onclick="deletePlaylist(event,''+pl.id+'')" style="background:rgba(255,68,68,.1);border:none;border-radius:6px;color:#ff6b6b;font-size:12px;padding:6px 8px;cursor:pointer">🗑</button>'
-          :'<span style="color:#555;font-size:14px">▶</span>')
-        +'</div>';
+      var delBtn = isAdmin
+        ? '<button onclick="deletePlaylist(event,\''+pl.id+'\');" style="background:rgba(255,68,68,.1);border:none;border-radius:6px;color:#ff6b6b;font-size:12px;padding:6px 8px;cursor:pointer">🗑</button>'
+        : '<span style="color:#555;font-size:14px">▶</span>';
+      return '<div class="playlist-card-item" onclick="openPlaylist(\'' + pl.id + '\')">'
+        + '<div class="playlist-art-sm">🎵</div>'
+        + '<div class="playlist-info-sm">'
+          + '<div class="playlist-nm-sm">' + pl.name + '</div>'
+          + '<div class="playlist-sub-sm">' + trackIds.length + ' titre' + (trackIds.length > 1 ? 's' : '')
+            + (pl.description ? ' · ' + pl.description : '') + '</div>'
+        + '</div>'
+        + delBtn
+        + '</div>';
     }).join('');
 }
 
@@ -2787,33 +2790,37 @@ function renderTracks() {
   var el = document.getElementById('tracks-list');
   var countEl = document.getElementById('tracks-count');
   if (!el) return;
-  var coursFilter = (document.getElementById('music-cours-filter')||{}).value || '';
-  var filtered = allTracks.filter(function(t){
-    var tagOk  = musicTagFilter==='all' || t.tag===musicTagFilter;
-    var coursOk = !coursFilter || t.cours===coursFilter;
+  var coursFilter = (document.getElementById('music-cours-filter') || {}).value || '';
+  var filtered = allTracks.filter(function(t) {
+    var tagOk  = musicTagFilter === 'all' || t.tag === musicTagFilter;
+    var coursOk = !coursFilter || t.cours === coursFilter;
     return tagOk && coursOk;
   });
-  if (countEl) countEl.textContent = filtered.length+' titre'+(filtered.length>1?'s':'');
+  window._lastFilteredTracks = filtered;
+  if (countEl) countEl.textContent = filtered.length + ' titre' + (filtered.length > 1 ? 's' : '');
   if (!filtered.length) {
-    el.innerHTML='<div class="empty"><span class="empty-ico">🎵</span><p>Aucune musique pour ces critères.</p></div>';
+    el.innerHTML = '<div class="empty"><span class="empty-ico">🎵</span><p>Aucune musique pour ces critères.</p></div>';
     return;
   }
-  el.innerHTML = filtered.map(function(t,i){
-    var isPlaying = currentPlaylist.length && currentPlaylist[currentTrackIdx] && currentPlaylist[currentTrackIdx].id===t.id;
-    return '<div class="track-row-audio'+(isPlaying?' playing':'')+'" id="trow-'+t.id+'" onclick="playFromList(''+t.id+'',filtered)">'
-      +'<div class="track-disc-audio">🎵</div>'
-      +'<div class="track-info-audio">'
-        +'<div class="track-nm-audio" onclick="event.stopPropagation();startRename(this,''+t.id+'')" title="Cliquer pour renommer">'+t.name+'</div>'
-        +'<div class="track-sub-audio">'+(t.tag||'')+(t.cours?' · '+t.cours:'')+'</div>'
-      +'</div>'
-      +'<div class="track-dur-audio">'+(t.duration||'—')+'</div>'
-      +(currentUser&&currentUser.role==='admin'
-        ?'<button class="track-del-audio" onclick="event.stopPropagation();deleteTrack(''+t.id+'')">🗑</button>'
-        :'')
-      +'</div>';
+  var isAdmin = currentUser && currentUser.role === 'admin';
+  el.innerHTML = filtered.map(function(t) {
+    var isPlaying = currentPlaylist.length && currentPlaylist[currentTrackIdx] && currentPlaylist[currentTrackIdx].id === t.id;
+    var delBtn = isAdmin ? '<button class="track-del-audio" onclick="event.stopPropagation();deleteTrack(\'' + t.id + '\')">🗑</button>' : '';
+    return '<div class="track-row-audio' + (isPlaying ? ' playing' : '') + '" id="trow-' + t.id + '" onclick="playFromTrackId(\'' + t.id + '\')">'
+      + '<div class="track-disc-audio">🎵</div>'
+      + '<div class="track-info-audio">'
+        + '<div class="track-nm-audio" onclick="event.stopPropagation();startRename(this,\'' + t.id + '\')" title="Cliquer pour renommer">' + t.name + '</div>'
+        + '<div class="track-sub-audio">' + (t.tag || '') + (t.cours ? ' · ' + t.cours : '') + '</div>'
+      + '</div>'
+      + '<div class="track-dur-audio">' + (t.duration || '—') + '</div>'
+      + delBtn
+      + '</div>';
   }).join('');
-  // Rendre filtered accessible pour playFromList
-  window._lastFilteredTracks = filtered;
+}
+
+function playFromTrackId(trackId) {
+  var list = window._lastFilteredTracks || allTracks;
+  playFromList(trackId, list);
 }
 
 // ── RENOMMER UN TITRE (inline) ──
@@ -3043,18 +3050,20 @@ async function deleteTrack(trackId) {
 // ── PLAYLISTS ──
 function openCreatePlaylist() {
   document.getElementById('playlist-modal').classList.add('open');
-  document.getElementById('playlist-name').value='';
-  document.getElementById('playlist-desc').value='';
-  document.getElementById('playlist-err').style.display='none';
-  // Afficher les tracks à cocher
+  document.getElementById('playlist-name').value = '';
+  document.getElementById('playlist-desc').value = '';
+  document.getElementById('playlist-err').style.display = 'none';
   var sel = document.getElementById('playlist-tracks-select');
-  if (!allTracks.length) { sel.innerHTML='<p style="font-size:12px;color:#555;padding:8px">Aucune musique disponible</p>'; return; }
-  sel.innerHTML = allTracks.map(function(t){
-    return '<label style="display:flex;align-items:center;gap:8px;padding:7px 8px;cursor:pointer;border-radius:6px;transition:background .1s" onmouseover="this.style.background='#1f1f1f'" onmouseout="this.style.background=''">'
-      +'<input type="checkbox" value="'+t.id+'" style="accent-color:#FFD000;width:15px;height:15px">'
-      +'<span style="font-size:13px">'+t.name+'</span>'
-      +'<span style="font-size:10px;color:#555;margin-left:auto">'+(t.tag||'')+'</span>'
-      +'</label>';
+  if (!allTracks.length) {
+    sel.innerHTML = '<p style="font-size:12px;color:#555;padding:8px">Aucune musique disponible</p>';
+    return;
+  }
+  sel.innerHTML = allTracks.map(function(t) {
+    return '<label style="display:flex;align-items:center;gap:8px;padding:7px 8px;cursor:pointer;border-radius:6px">'
+      + '<input type="checkbox" value="' + t.id + '" style="accent-color:#FFD000;width:15px;height:15px">'
+      + '<span style="font-size:13px">' + t.name + '</span>'
+      + '<span style="font-size:10px;color:#555;margin-left:auto">' + (t.tag || '') + '</span>'
+      + '</label>';
   }).join('');
 }
 
