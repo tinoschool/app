@@ -627,7 +627,6 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
               <select class="fl-input search-select" id="community-sort" onchange="applyCommunityFilters()" style="flex:1">
                 <option value="recent">Plus récent d'abord</option>
                 <option value="ancien">Plus ancien d'abord</option>
-                <option value="mois">Par mois</option>
               </select>
             </div>
           </div>
@@ -700,7 +699,6 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
               <select class="fl-input search-select" id="mine-sort" onchange="applyMineFilters()" style="flex:1">
                 <option value="recent">Plus récent d'abord</option>
                 <option value="ancien">Plus ancien d'abord</option>
-                <option value="mois">Par mois</option>
               </select>
             </div>
           </div>
@@ -1338,8 +1336,6 @@ function sortVideos(list, sortVal) {
     sorted.sort(function(a,b){ return new Date(b.created_at||b.date) - new Date(a.created_at||a.date); });
   } else if (sortVal === 'ancien') {
     sorted.sort(function(a,b){ return new Date(a.created_at||a.date) - new Date(b.created_at||b.date); });
-  } else if (sortVal === 'mois') {
-    sorted.sort(function(a,b){ return new Date(b.created_at||b.date) - new Date(a.created_at||a.date); });
   }
   return sorted;
 }
@@ -1420,17 +1416,7 @@ function renderCommunityVideos() {
     return;
   }
 
-  if (sortVal === 'mois') {
-    var groups = groupByMonth(filtered);
-    var html = '';
-    Object.keys(groups).forEach(function(month) {
-      html += '<div class="month-separator">📅 ' + month.toUpperCase() + '</div>';
-      html += groups[month].map(function(v){ return renderVidCard(v, 'community'); }).join('');
-    });
-    listEl.innerHTML = html;
-  } else {
-    listEl.innerHTML = filtered.map(function(v){ return renderVidCard(v, 'community'); }).join('');
-  }
+  listEl.innerHTML = filtered.map(function(v){ return renderVidCard(v, 'community'); }).join('');
 }
 
 function renderVidCard(v, source) {
