@@ -316,6 +316,101 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
   width:100%;height:100%;object-fit:cover;display:block;
 }
 
+/* ══ TAGS & FILTRES ══ */
+.search-bar-wrap {
+  background:#111;border:1px solid #222;border-radius:12px;
+  padding:14px;margin-bottom:4px;
+}
+.filter-label {
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  color:#555;margin-bottom:8px;display:block;
+}
+.tag-filter-row {
+  display:flex;gap:6px;flex-wrap:wrap;
+}
+.tag-filter {
+  padding:6px 12px;border-radius:20px;font-size:11px;font-weight:500;
+  border:1px solid #333;background:transparent;color:#555;
+  cursor:pointer;font-family:'DM Sans',sans-serif;
+  transition:all .15s;white-space:nowrap;
+}
+.tag-filter.active {
+  background:#FFD000;color:#000;border-color:#FFD000;font-weight:600;
+}
+.search-select {
+  width:100%;padding:10px 12px;font-size:13px;margin-top:5px;
+}
+
+/* Upload — tag buttons */
+.tag-btn-row {
+  display:flex;gap:8px;flex-wrap:wrap;
+}
+.tag-btn {
+  padding:8px 14px;border-radius:20px;font-size:12px;font-weight:500;
+  border:1px solid #444;background:#111;color:#777;
+  cursor:pointer;font-family:'DM Sans',sans-serif;
+  transition:all .15s;
+}
+.tag-btn.active {
+  background:rgba(255,208,0,.15);color:#FFD000;
+  border-color:#FFD000;font-weight:600;
+}
+
+/* Séparateur mois */
+.month-separator {
+  font-family:'Bebas Neue',sans-serif;font-size:14px;
+  letter-spacing:2px;color:#444;
+  padding:10px 0 6px;
+  border-top:1px solid #1f1f1f;
+  margin-top:6px;
+}
+
+/* ══ GALERIE PHOTOS ══ */
+.photos-grid {
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:3px;margin-bottom:20px;
+}
+.photo-item {
+  aspect-ratio:1;background:#181818;
+  border-radius:4px;overflow:hidden;
+  cursor:pointer;position:relative;
+}
+.photo-item img {
+  width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .2s;
+}
+.photo-item:hover img { transform:scale(1.05); }
+.photo-tag-pill {
+  position:absolute;bottom:4px;left:4px;
+  padding:2px 6px;border-radius:10px;
+  font-size:8px;letter-spacing:1px;
+  background:rgba(0,0,0,.7);color:#FFD000;
+  text-transform:uppercase;
+}
+.photo-owner {
+  position:absolute;top:4px;right:4px;
+  width:22px;height:22px;border-radius:50%;
+  background:#FFD000;color:#000;
+  font-family:'Bebas Neue',sans-serif;font-size:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* Photo modal */
+.photo-modal {
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.98);z-index:200;
+  flex-direction:column;justify-content:center;align-items:center;
+}
+.photo-modal.open { display:flex; }
+.photo-modal img {
+  width:calc(100% - 32px);max-width:480px;
+  max-height:75vh;object-fit:contain;border-radius:10px;
+}
+.photo-modal-info {
+  width:calc(100% - 32px);max-width:480px;
+  margin-top:12px;display:flex;justify-content:space-between;align-items:center;
+}
+
 /* ══ OPTIMISATION MOBILE ══ */
 @media (max-width: 480px) {
 
@@ -479,41 +574,72 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
   <!-- VIDEOS -->
   <div class="page" id="page-videos">
     <div class="sec-h">Vidéos</div>
-    <div class="sec-s">Spectacles · Festival · Mes entraînements</div>
+    <div class="sec-s">Nos vidéos · École · Mes vidéos</div>
+
+    <!-- Onglets principaux -->
     <div class="vtabs" id="main-vtabs">
-      <button class="vtab active" onclick="switchTab('school',this)">🏫 École</button>
-      <button class="vtab" onclick="switchTab('community',this)">👥 Nos vidéos</button>
+      <button class="vtab active" onclick="switchTab('community',this)">👥 Nos vidéos</button>
+      <button class="vtab" onclick="switchTab('school',this)">🏫 École</button>
       <button class="vtab" onclick="switchTab('mine',this)">📱 Mes vidéos</button>
     </div>
-    <div id="tab-school">
-      <div class="vtabs" id="filter-vtabs">
-        <button class="vtab active" onclick="filterV('all',this)">Tout</button>
-        <button class="vtab" onclick="filterV('spectacle',this)">Spectacles</button>
-        <button class="vtab" onclick="filterV('festival',this)">Festival</button>
-        <button class="vtab" onclick="filterV('battle',this)">Battles</button>
-        <button class="vtab" onclick="filterV('cours',this)">Cours</button>
-      </div>
-      <div class="vgrid" id="vgrid"></div>
-    </div>
-    <!-- ONGLET NOS VIDÉOS — toutes les vidéos des adhérents -->
-    <div id="tab-community" style="display:none">
+
+    <!-- ═══ ONGLET NOS VIDÉOS ═══ -->
+    <div id="tab-community">
       <div class="locked" id="community-wrap">
         <div id="community-content">
-          <!-- Filtres -->
-          <div class="vtabs" id="community-filters" style="margin-bottom:14px">
-            <button class="vtab active" onclick="filterCommunity('all',this)">Tout</button>
-            <button class="vtab" onclick="filterCommunity('freestyle',this)">Freestyle</button>
-            <button class="vtab" onclick="filterCommunity('choregraphie',this)">Chorégraphie</button>
+
+          <!-- Barre de recherche/filtres -->
+          <div class="search-bar-wrap">
+            <!-- Tags cliquables -->
+            <div class="filter-label">Catégorie</div>
+            <div class="tag-filter-row" id="community-tag-filters">
+              <button class="tag-filter active" data-tag="all" onclick="setCommunityTag('all',this)">Tout</button>
+              <button class="tag-filter" data-tag="Freestyle" onclick="setCommunityTag('Freestyle',this)">Freestyle</button>
+              <button class="tag-filter" data-tag="Chorégraphie" onclick="setCommunityTag('Chorégraphie',this)">Chorégraphie</button>
+              <button class="tag-filter" data-tag="Spectacle" onclick="setCommunityTag('Spectacle',this)">Spectacle</button>
+              <button class="tag-filter" data-tag="Battle" onclick="setCommunityTag('Battle',this)">Battle</button>
+              <button class="tag-filter" data-tag="Autres" onclick="setCommunityTag('Autres',this)">Autres</button>
+            </div>
+
+            <!-- Filtre cours -->
+            <div class="filter-label" style="margin-top:10px">Cours</div>
+            <select class="fl-input search-select" id="community-cours-filter" onchange="applyCommunityFilters()">
+              <option value="">Tous les cours</option>
+              <option>Éveil 1</option>
+              <option>Éveil 2</option>
+              <option>Enfants Débutant</option>
+              <option>Enfants Intermédiaire</option>
+              <option>Enfants Avancés</option>
+              <option>Ateliers Chorégraphique</option>
+              <option>Ados Débutant</option>
+              <option>Ados Intermédiaire</option>
+              <option>Ados Avancés</option>
+              <option>Adultes</option>
+              <option>Semi-Pro</option>
+              <option>Pro</option>
+              <option>Villepinte Éveil</option>
+              <option>Villepinte Kids</option>
+            </select>
+
+            <!-- Tri par date -->
+            <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+              <div class="filter-label" style="margin-top:0">Tri</div>
+              <select class="fl-input search-select" id="community-sort" onchange="applyCommunityFilters()" style="flex:1">
+                <option value="recent">Plus récent d'abord</option>
+                <option value="ancien">Plus ancien d'abord</option>
+                <option value="mois">Par mois</option>
+              </select>
+            </div>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin:14px 0 10px">
             <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px">Vidéos de l'association</span>
             <span style="font-size:11px;color:#FFD000" id="community-count">0 vidéo</span>
           </div>
           <div id="community-vid-list">
-            <div class="empty"><span class="empty-ico">🎬</span><p>Chargement des vidéos…</p></div>
+            <div class="empty"><span class="empty-ico">🎬</span><p>Chargement…</p></div>
           </div>
         </div>
-        <!-- Overlay pour membres simples -->
         <div class="lock-overlay" id="community-lock" style="display:none">
           <div class="lock-icon">🔒</div>
           <div class="lock-title">Accès Adhérents</div>
@@ -523,29 +649,86 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
       </div>
     </div>
 
+    <!-- ═══ ONGLET ÉCOLE ═══ -->
+    <div id="tab-school" style="display:none">
+      <div class="vtabs" id="filter-vtabs">
+        <button class="vtab active" onclick="filterV('all',this)">Tout</button>
+        <button class="vtab" onclick="filterV('spectacle',this)">Spectacles</button>
+        <button class="vtab" onclick="filterV('festival',this)">Festival</button>
+        <button class="vtab" onclick="filterV('battle',this)">Battles</button>
+        <button class="vtab" onclick="filterV('cours',this)">Cours</button>
+      </div>
+      <div class="vgrid" id="vgrid"></div>
+    </div>
+
+    <!-- ═══ ONGLET MES VIDÉOS ═══ -->
     <div id="tab-mine" style="display:none">
       <div class="locked" id="mine-wrap">
         <div id="mine-content">
-          <div class="drop-zone" id="upload-zone" onclick="openUpload()" style="margin-bottom:20px">
-            <div style="font-size:32px;margin-bottom:8px">🎬</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;margin-bottom:4px">Ajouter une vidéo</div>
-            <div style="font-size:12px;color:#555">Filme ta chorée et retrouve-la ici</div>
+
+          <!-- Filtres Mes vidéos -->
+          <div class="search-bar-wrap">
+            <div class="filter-label">Catégorie</div>
+            <div class="tag-filter-row" id="mine-tag-filters">
+              <button class="tag-filter active" data-tag="all" onclick="setMineTag('all',this)">Tout</button>
+              <button class="tag-filter" data-tag="Freestyle" onclick="setMineTag('Freestyle',this)">Freestyle</button>
+              <button class="tag-filter" data-tag="Chorégraphie" onclick="setMineTag('Chorégraphie',this)">Chorégraphie</button>
+              <button class="tag-filter" data-tag="Spectacle" onclick="setMineTag('Spectacle',this)">Spectacle</button>
+              <button class="tag-filter" data-tag="Battle" onclick="setMineTag('Battle',this)">Battle</button>
+              <button class="tag-filter" data-tag="Autres" onclick="setMineTag('Autres',this)">Autres</button>
+            </div>
+            <div class="filter-label" style="margin-top:10px">Cours</div>
+            <select class="fl-input search-select" id="mine-cours-filter" onchange="applyMineFilters()">
+              <option value="">Tous les cours</option>
+              <option>Éveil 1</option>
+              <option>Éveil 2</option>
+              <option>Enfants Débutant</option>
+              <option>Enfants Intermédiaire</option>
+              <option>Enfants Avancés</option>
+              <option>Ateliers Chorégraphique</option>
+              <option>Ados Débutant</option>
+              <option>Ados Intermédiaire</option>
+              <option>Ados Avancés</option>
+              <option>Adultes</option>
+              <option>Semi-Pro</option>
+              <option>Pro</option>
+              <option>Villepinte Éveil</option>
+              <option>Villepinte Kids</option>
+            </select>
+            <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+              <div class="filter-label" style="margin-top:0">Tri</div>
+              <select class="fl-input search-select" id="mine-sort" onchange="applyMineFilters()" style="flex:1">
+                <option value="recent">Plus récent d'abord</option>
+                <option value="ancien">Plus ancien d'abord</option>
+                <option value="mois">Par mois</option>
+              </select>
+            </div>
           </div>
-          <div class="prog-wrap" id="prog-wrap"><div class="prog-lbl"><span id="prog-name">Chargement…</span><span id="prog-pct">0%</span></div><div class="prog-bg"><div class="prog-fill" id="prog-fill"></div></div></div>
-          <div class="vtabs" id="my-filters" style="display:none;margin-bottom:14px">
-            <button class="vtab active" onclick="filterMine('all',this)">Tout</button>
-            <button class="vtab" onclick="filterMine('freestyle',this)">Freestyle</button>
-            <button class="vtab" onclick="filterMine('choregraphie',this)">Chorégraphie</button>
+
+          <!-- Upload zone -->
+          <div class="drop-zone" id="upload-zone" onclick="openUpload()" style="margin:14px 0">
+            <div style="font-size:28px;margin-bottom:6px">🎬</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;margin-bottom:3px">Ajouter une vidéo</div>
+            <div style="font-size:11px;color:#555">Filme ta chorée et retrouve-la ici</div>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+
+          <div class="prog-wrap" id="prog-wrap">
+            <div class="prog-lbl"><span id="prog-name">Chargement…</span><span id="prog-pct">0%</span></div>
+            <div class="prog-bg"><div class="prog-fill" id="prog-fill"></div></div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
             <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px">Mes entraînements</span>
             <span style="font-size:11px;color:#FFD000" id="my-count">0 vidéo</span>
           </div>
-          <div id="my-vid-list"><div class="empty"><span class="empty-ico">📹</span><p>Aucune vidéo.<br>Filme ta chorégraphie et téléverse-la ici !</p></div></div>
+          <div id="my-vid-list">
+            <div class="empty"><span class="empty-ico">📹</span><p>Aucune vidéo pour l'instant.</p></div>
+          </div>
         </div>
         <div class="lock-overlay" id="mine-lock" style="display:none">
-          <div class="lock-icon">🔒</div><div class="lock-title">Accès Adhérents</div>
-          <div class="lock-desc">Le téléversement est réservé aux adhérents de l'association.</div>
+          <div class="lock-icon">🔒</div>
+          <div class="lock-title">Accès Adhérents</div>
+          <div class="lock-desc">Le téléversement est réservé aux adhérents.</div>
           <div class="lock-pill">Réserver votre abonnement</div>
         </div>
       </div>
@@ -627,6 +810,74 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
     <div class="sec-h">Notifications</div>
     <div class="sec-s">Messages de l'équipe Tinoschool</div>
     <div id="notifs-list"><div class="empty"><span class="empty-ico">🔔</span><p>Aucune notification.</p></div></div>
+  </div>
+
+  <!-- PHOTOS -->
+  <div class="page" id="page-photos">
+    <div class="sec-h">Photos</div>
+    <div class="sec-s">Galerie des danseurs</div>
+
+    <div class="locked" id="photos-wrap">
+      <div id="photos-content">
+
+        <!-- Filtres tags -->
+        <div class="search-bar-wrap">
+          <div class="filter-label">Catégorie</div>
+          <div class="tag-filter-row" id="photos-tag-filters">
+            <button class="tag-filter active" data-tag="all" onclick="setPhotosTag('all',this)">Tout</button>
+            <button class="tag-filter" data-tag="Freestyle" onclick="setPhotosTag('Freestyle',this)">Freestyle</button>
+            <button class="tag-filter" data-tag="Chorégraphie" onclick="setPhotosTag('Chorégraphie',this)">Chorégraphie</button>
+            <button class="tag-filter" data-tag="Spectacle" onclick="setPhotosTag('Spectacle',this)">Spectacle</button>
+            <button class="tag-filter" data-tag="Battle" onclick="setPhotosTag('Battle',this)">Battle</button>
+            <button class="tag-filter" data-tag="Autres" onclick="setPhotosTag('Autres',this)">Autres</button>
+          </div>
+        </div>
+
+        <!-- Upload photo -->
+        <div class="drop-zone" onclick="document.getElementById('photo-upload-input').click()" style="margin:14px 0;position:relative">
+          <input type="file" id="photo-upload-input" accept="image/*" multiple
+                 style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%"
+                 onchange="handlePhotosUpload(this.files)">
+          <div style="font-size:28px;margin-bottom:6px">📸</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;margin-bottom:3px">Ajouter des photos</div>
+          <div style="font-size:11px;color:#555">Partage tes moments avec l'association</div>
+        </div>
+
+        <!-- Modal tag pour photo -->
+        <div id="photo-tag-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:400;align-items:center;justify-content:center">
+          <div style="background:#181818;border-radius:14px;padding:22px;width:calc(100% - 32px);max-width:380px">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;margin-bottom:14px;text-align:center">📸 Tag de la photo *</div>
+            <div class="tag-btn-row" id="photo-tag-btn-row">
+              <button type="button" class="tag-btn" data-tag="Freestyle" onclick="selectPhotoTag(this)">Freestyle</button>
+              <button type="button" class="tag-btn" data-tag="Chorégraphie" onclick="selectPhotoTag(this)">Chorégraphie</button>
+              <button type="button" class="tag-btn" data-tag="Spectacle" onclick="selectPhotoTag(this)">Spectacle</button>
+              <button type="button" class="tag-btn" data-tag="Battle" onclick="selectPhotoTag(this)">Battle</button>
+              <button type="button" class="tag-btn" data-tag="Autres" onclick="selectPhotoTag(this)">Autres</button>
+            </div>
+            <input type="hidden" id="selected-photo-tag" value="">
+            <div style="display:flex;gap:10px;margin-top:16px">
+              <button onclick="cancelPhotoUpload()" style="flex:1;padding:12px;background:transparent;border:1px solid #333;border-radius:8px;color:#555;cursor:pointer;font-family:'DM Sans',sans-serif">Annuler</button>
+              <button onclick="confirmPhotoUpload()" style="flex:1;padding:12px;background:#FFD000;border:none;border-radius:8px;color:#000;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer">Publier</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px">Galerie</span>
+          <span style="font-size:11px;color:#FFD000" id="photos-count">0 photo</span>
+        </div>
+        <div id="photos-grid" class="photos-grid">
+          <div class="empty"><span class="empty-ico">📸</span><p>Aucune photo pour l'instant.<br>Sois le premier à partager !</p></div>
+        </div>
+      </div>
+
+      <div class="lock-overlay" id="photos-lock" style="display:none">
+        <div class="lock-icon">📸</div>
+        <div class="lock-title">Accès Adhérents</div>
+        <div class="lock-desc">La galerie photos est réservée aux adhérents.</div>
+        <div class="lock-pill">Réserver votre abonnement</div>
+      </div>
+    </div>
   </div>
 
   <!-- PROFIL -->
@@ -788,6 +1039,19 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
   <div class="vmodal-title" id="vmodal-title"></div>
 </div>
 
+<!-- PHOTO MODAL -->
+<div class="photo-modal" id="photo-modal">
+  <button class="vmodal-close" onclick="closePhotoModal()">✕</button>
+  <img id="photo-modal-img" src="" alt="photo" style="width:calc(100% - 32px);max-width:480px;max-height:75vh;object-fit:contain;border-radius:10px">
+  <div class="photo-modal-info" id="photo-modal-info">
+    <div id="photo-modal-info-txt" style="display:flex;flex-direction:column;gap:3px"></div>
+    <button id="photo-modal-del" onclick="deleteCurrentPhoto()"
+      style="display:none;padding:7px 12px;background:rgba(255,68,68,.15);border:1px solid rgba(255,68,68,.3);border-radius:8px;color:#ff6b6b;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif">
+      🗑 Supprimer
+    </button>
+  </div>
+</div>
+
 <!-- MY VIDEO MODAL -->
 <div class="my-vid-modal" id="my-modal">
   <button class="vmodal-close" onclick="closeMyModal()">✕</button>
@@ -848,15 +1112,69 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
 <div class="upload-modal" id="upload-modal">
   <div class="upload-inner">
     <button class="up-close" onclick="closeUpload()">✕</button>
-    <h3>📹 Nouvelle vidéo</h3>
-    <div class="fl"><div class="fl-label">Catégorie *</div><div class="cat-btns"><button class="cat-btn active" id="cb-free" onclick="setCat('freestyle')">🕺 Freestyle</button><button class="cat-btn" id="cb-chor" onclick="setCat('choregraphie')">💃 Chorégraphie</button></div></div>
-    <div class="fl"><div class="fl-label">Nom du cours *</div><select class="fl-input" id="up-cours"><option value="">— Choisir —</option><option>Hip-Hop Enfants 6–7 ans</option><option>Hip-Hop 8–12 ans</option><option>Hip-Hop Ados</option><option>Hip-Hop Adultes</option><option>House Dance</option><option>Afro Dance</option><option>Freestyle / Battle</option><option>Break / Bboy</option><option>Locking</option><option>Popping</option><option>Jazz Rock</option></select></div>
-    <div id="fields-free"><div class="fl"><div class="fl-label">Nom de l'élève *</div><input class="fl-input" id="up-eleve" type="text" placeholder="Prénom Nom"></div><div class="fl"><div class="fl-label">Année</div><select class="fl-input" id="up-annee"><option value="">—</option><option>2026</option><option>2025</option><option>2024</option><option>2023</option></select></div></div>
-    <div id="fields-chor" style="display:none"><div class="fl"><div class="fl-label">Chorégraphie *</div><select class="fl-input" id="up-choree"><option value="">— Choisir —</option><option>Ouverture — Ensemble</option><option>Chorée Enfants Gala 2026</option><option>Showcase Ados 2026</option><option>Freestyle Adultes 2026</option><option>Finale — Tous niveaux</option><option>Battle Tinoschool Week</option></select></div></div>
-    <div class="fl"><div class="fl-label">Fichier vidéo *</div>
-      <div class="drop-zone"><input type="file" accept="video/*" id="up-file" onchange="previewFile(this.files[0])"><div id="file-preview"><div style="font-size:28px;margin-bottom:6px">📁</div><div style="font-size:12px;color:#555">Appuyer pour choisir</div></div></div>
+    <h3>🎬 Nouvelle vidéo</h3>
+
+    <!-- Nom de la vidéo -->
+    <div class="fl" style="margin-bottom:14px">
+      <div class="fl-label">Nom de la vidéo *</div>
+      <input class="fl-input" id="up-vidname" type="text" placeholder="Ex: Mon freestyle hip-hop" style="margin-top:5px">
     </div>
-    <button class="btn-login" onclick="submitUpload()" style="font-size:11px;padding:12px;margin-top:4px">Téléverser</button>
+
+    <!-- Tags obligatoires -->
+    <div class="fl" style="margin-bottom:14px">
+      <div class="fl-label">Tag * <span style="color:#555;font-size:9px;letter-spacing:0">(obligatoire)</span></div>
+      <div class="tag-btn-row" id="tag-btn-row" style="margin-top:8px">
+        <button type="button" class="tag-btn" data-tag="Freestyle" onclick="selectTag(this)">Freestyle</button>
+        <button type="button" class="tag-btn" data-tag="Chorégraphie" onclick="selectTag(this)">Chorégraphie</button>
+        <button type="button" class="tag-btn" data-tag="Spectacle" onclick="selectTag(this)">Spectacle</button>
+        <button type="button" class="tag-btn" data-tag="Battle" onclick="selectTag(this)">Battle</button>
+        <button type="button" class="tag-btn" data-tag="Autres" onclick="selectTag(this)">Autres</button>
+      </div>
+      <input type="hidden" id="up-tag" value="">
+    </div>
+
+    <!-- Nom du cours -->
+    <div class="fl" style="margin-bottom:14px">
+      <div class="fl-label">Cours</div>
+      <select class="fl-input" id="up-cours" style="margin-top:5px">
+        <option value="">— Choisir le cours —</option>
+        <option>Éveil 1</option>
+        <option>Éveil 2</option>
+        <option>Enfants Débutant</option>
+        <option>Enfants Intermédiaire</option>
+        <option>Enfants Avancés</option>
+        <option>Ateliers Chorégraphique</option>
+        <option>Ados Débutant</option>
+        <option>Ados Intermédiaire</option>
+        <option>Ados Avancés</option>
+        <option>Adultes</option>
+        <option>Semi-Pro</option>
+        <option>Pro</option>
+        <option>Villepinte Éveil</option>
+        <option>Villepinte Kids</option>
+      </select>
+    </div>
+
+    <!-- Nom élève -->
+    <div class="fl" style="margin-bottom:14px">
+      <div class="fl-label">Nom de l'élève (facultatif)</div>
+      <input class="fl-input" id="up-eleve" type="text" placeholder="Prénom Nom" style="margin-top:5px">
+    </div>
+
+    <!-- Fichier -->
+    <div class="fl" style="margin-bottom:18px">
+      <div class="fl-label">Fichier vidéo *</div>
+      <div class="drop-zone" style="padding:14px;margin-top:6px;position:relative">
+        <input type="file" accept="video/*" id="up-file" onchange="previewFile(this.files[0])"
+               style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%">
+        <div id="file-preview">
+          <div style="font-size:24px;margin-bottom:4px">📁</div>
+          <div style="font-size:12px;color:#555">Appuyer pour choisir</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-login" onclick="submitUpload()" style="font-size:11px;padding:12px">📤 Téléverser</button>
     <div class="up-err" id="up-err"></div>
   </div>
 </div>
@@ -868,6 +1186,7 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
   <button class="nav-btn" onclick="goPage('agenda')"><div class="nav-ico">📅</div><div class="nav-lbl">Agenda</div><div class="nav-pip"></div></button>
   <button class="nav-btn" onclick="goPage('news')"><div class="nav-ico">📢</div><div class="nav-lbl">Actus</div><div class="nav-pip"></div></button>
   <button class="nav-btn" onclick="goPage('musique')"><div class="nav-ico">🎵</div><div class="nav-lbl">Musiques</div><div class="nav-pip"></div></button>
+  <button class="nav-btn" onclick="goPage('photos')"><div class="nav-ico">📸</div><div class="nav-lbl">Photos</div><div class="nav-pip"></div></button>
   <button class="nav-btn" onclick="goPage('profil')"><div class="nav-ico">👤</div><div class="nav-lbl">Profil</div><div class="nav-pip"></div></button>
 </nav>
 
@@ -972,6 +1291,70 @@ async function uploadToCloudinary(file, folder) {
   return await res.json();
 }
 
+// ── TAGS & FILTRES ──
+var communityTagFilter = 'all';
+var mineTagFilter = 'all';
+var photosTagFilter = 'all';
+var pendingPhotoFiles = [];
+
+function selectTag(btn) {
+  document.querySelectorAll('#tag-btn-row .tag-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('up-tag').value = btn.dataset.tag;
+}
+
+function setCommunityTag(tag, btn) {
+  communityTagFilter = tag;
+  document.querySelectorAll('#community-tag-filters .tag-filter').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  applyCommunityFilters();
+}
+
+function setMineTag(tag, btn) {
+  mineTagFilter = tag;
+  document.querySelectorAll('#mine-tag-filters .tag-filter').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  applyMineFilters();
+}
+
+function setPhotosTag(tag, btn) {
+  photosTagFilter = tag;
+  document.querySelectorAll('#photos-tag-filters .tag-filter').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderPhotos();
+}
+
+function applyCommunityFilters() {
+  renderCommunityVideos();
+}
+
+function applyMineFilters() {
+  renderMyVideos();
+}
+
+function sortVideos(list, sortVal) {
+  var sorted = list.slice();
+  if (sortVal === 'recent' || !sortVal) {
+    sorted.sort(function(a,b){ return new Date(b.created_at||b.date) - new Date(a.created_at||a.date); });
+  } else if (sortVal === 'ancien') {
+    sorted.sort(function(a,b){ return new Date(a.created_at||a.date) - new Date(b.created_at||b.date); });
+  } else if (sortVal === 'mois') {
+    sorted.sort(function(a,b){ return new Date(b.created_at||b.date) - new Date(a.created_at||a.date); });
+  }
+  return sorted;
+}
+
+function groupByMonth(list) {
+  var groups = {};
+  list.forEach(function(v) {
+    var d = new Date(v.created_at || v.date);
+    var key = isNaN(d) ? 'Autre' : d.toLocaleString('fr-FR',{month:'long',year:'numeric'});
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(v);
+  });
+  return groups;
+}
+
 // ── COMMUNITY VIDEOS — toutes les vidéos adhérents ──
 var communityVideos = [];
 var communityFilter = 'all';
@@ -1018,39 +1401,58 @@ function filterCommunity(cat, btn) {
 }
 
 function renderCommunityVideos() {
-  var list = document.getElementById('community-vid-list');
-  var count = document.getElementById('community-count');
-  var filtered = communityFilter==='all' ? communityVideos
-    : communityVideos.filter(function(v){ return v.cat===communityFilter; });
+  var listEl = document.getElementById('community-vid-list');
+  var countEl = document.getElementById('community-count');
+  var coursFilter = (document.getElementById('community-cours-filter')||{}).value || '';
+  var sortVal = (document.getElementById('community-sort')||{}).value || 'recent';
 
-  count.textContent = filtered.length + (filtered.length > 1 ? ' vidéos' : ' vidéo');
+  var filtered = communityVideos.filter(function(v){
+    var tagOk  = communityTagFilter==='all' || (v.tag||v.cat||'').toLowerCase().indexOf(communityTagFilter.toLowerCase()) > -1;
+    var coursOk = !coursFilter || v.cours === coursFilter;
+    return tagOk && coursOk;
+  });
+
+  filtered = sortVideos(filtered, sortVal);
+  countEl.textContent = filtered.length + (filtered.length>1?' vidéos':' vidéo');
 
   if(!filtered.length) {
-    list.innerHTML = '<div class="empty"><span class="empty-ico">🎬</span><p>Aucune vidéo pour l\'instant.<br>Les adhérents peuvent en uploader !</p></div>';
+    listEl.innerHTML='<div class="empty"><span class="empty-ico">🎬</span><p>Aucune vidéo pour ces critères.</p></div>';
     return;
   }
 
-  list.innerHTML = filtered.map(function(v, i) {
-    var idx = communityVideos.indexOf(v);
-    // Peut supprimer si c'est sa propre vidéo ou si admin
-    var canDelete = currentUser && (currentUser.email === v.user_email || currentUser.role === 'admin');
-    return '<div class="my-vid-card">'
-      +'<div class="my-vid-thumb" onclick="openCommunityVid('+idx+')">'
-      +'<video src="'+v.url+'" preload="metadata" muted style="width:100%;height:100%;object-fit:cover;display:block"></video>'
-      +'<div class="my-vid-ov"><div class="my-play">▶</div></div></div>'
-      +'<div class="my-vid-info">'
-        +'<div class="my-vid-txt">'
-          +'<div class="my-vid-nm">'+v.name+'</div>'
-          +'<div class="my-vid-mt">👤 '+v.user_name+' · 📅 '+v.date+'</div>'
-          +'<div class="my-vid-tags">'
-            +'<span class="my-tag '+(v.cat==='choregraphie'?'chor':'')+'">'+v.cat+'</span>'
-            +'<span class="my-tag">'+v.cours+'</span>'
-            +(v.annee?'<span class="my-tag">'+v.annee+'</span>':'')
-          +'</div>'
+  if (sortVal === 'mois') {
+    var groups = groupByMonth(filtered);
+    var html = '';
+    Object.keys(groups).forEach(function(month) {
+      html += '<div class="month-separator">📅 ' + month.toUpperCase() + '</div>';
+      html += groups[month].map(function(v){ return renderVidCard(v, 'community'); }).join('');
+    });
+    listEl.innerHTML = html;
+  } else {
+    listEl.innerHTML = filtered.map(function(v){ return renderVidCard(v, 'community'); }).join('');
+  }
+}
+
+function renderVidCard(v, source) {
+  var idx = (source==='community'?communityVideos:myVideos).indexOf(v);
+  var canDelete = currentUser && (currentUser.email===v.user_email || currentUser.role==='admin');
+  var delFn = source==='community' ? 'deleteCommunityVid' : 'delMyVid';
+  var openFn = source==='community' ? 'openCommunityVid' : 'openMyVid';
+  return '<div class="my-vid-card">'
+    +'<div class="my-vid-thumb" onclick="'+openFn+'('+idx+')">'
+    +'<video src="'+v.url+'" preload="metadata" muted style="width:100%;height:100%;object-fit:cover;display:block"></video>'
+    +'<div class="my-vid-ov"><div class="my-play">▶</div></div></div>'
+    +'<div class="my-vid-info">'
+      +'<div class="my-vid-txt">'
+        +'<div class="my-vid-nm">'+(v.vidname||v.name)+'</div>'
+        +'<div class="my-vid-mt">'+(source==='community'?'👤 '+v.user_name+' · ':'')+'📅 '+v.date+'</div>'
+        +'<div class="my-vid-tags">'
+          +(v.tag?'<span class="my-tag">'+v.tag+'</span>':'')
+          +(v.cours?'<span class="my-tag">'+v.cours+'</span>':'')
         +'</div>'
-        +(canDelete?'<button class="del-btn" onclick="deleteCommunityVid('+idx+')">🗑</button>':'')
-      +'</div></div>';
-  }).join('');
+      +'</div>'
+      +(canDelete?'<button class="del-btn" onclick="'+delFn+'('+idx+')">🗑</button>':'')
+    +'</div></div>';
 }
 
 function openCommunityVid(i) {
@@ -1298,6 +1700,7 @@ function startApp() {
   document.getElementById('mine-lock').style.display = isRestricted ? 'flex' : 'none';
   document.getElementById('music-private-lock').style.display = isRestricted ? 'flex' : 'none';
   document.getElementById('community-lock').style.display = isRestricted ? 'flex' : 'none';
+  document.getElementById('photos-lock').style.display = isRestricted ? 'flex' : 'none';
   // show
   document.getElementById('splash').style.display = 'none';
   document.getElementById('app').style.display = 'block';
@@ -1309,6 +1712,7 @@ function startApp() {
   // Charger les vidéos depuis Supabase
   if (u.role !== 'membre') {
     loadMyVideos();
+    loadCommunityVideos();
     loadPrivateTracks();
   }
 }
@@ -1357,11 +1761,10 @@ function switchTab(tab, btn) {
   var btns = document.getElementById('main-vtabs').querySelectorAll('.vtab');
   for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
   btn.classList.add('active');
-  document.getElementById('tab-school').style.display     = tab==='school'    ? 'block' : 'none';
-  document.getElementById('tab-community').style.display  = tab==='community' ? 'block' : 'none';
-  document.getElementById('tab-mine').style.display       = tab==='mine'      ? 'block' : 'none';
+  document.getElementById('tab-community').style.display = tab==='community' ? 'block' : 'none';
+  document.getElementById('tab-school').style.display    = tab==='school'    ? 'block' : 'none';
+  document.getElementById('tab-mine').style.display      = tab==='mine'      ? 'block' : 'none';
   document.getElementById('fab').classList.toggle('show', tab==='mine');
-  // Charger les vidéos communauté au premier clic
   if(tab==='community' && currentUser && currentUser.role !== 'membre') {
     loadCommunityVideos();
   }
@@ -1411,13 +1814,15 @@ function fmtSize(b) { return b<1048576?(b/1024).toFixed(0)+' Ko':(b/1048576).toF
 function submitUpload() {
   var err = document.getElementById('up-err');
   err.style.display='none';
-  var cours = document.getElementById('up-cours').value;
-  if(!cours){err.textContent='Choisis un cours.';err.style.display='block';return;}
-  if(currentCat==='freestyle'&&!document.getElementById('up-eleve').value.trim()){err.textContent='Indique le nom de l\'élève.';err.style.display='block';return;}
-  if(currentCat==='choregraphie'&&!document.getElementById('up-choree').value){err.textContent='Choisis la chorégraphie.';err.style.display='block';return;}
-  if(!selectedFile){err.textContent='Sélectionne un fichier.';err.style.display='block';return;}
+  var vidname = document.getElementById('up-vidname').value.trim();
+  var tag     = document.getElementById('up-tag').value;
+  var cours   = document.getElementById('up-cours').value;
+  var eleve   = document.getElementById('up-eleve').value.trim();
+  if(!vidname){ err.textContent='Donne un nom à ta vidéo.'; err.style.display='block'; return; }
+  if(!tag)    { err.textContent='Choisis un tag.';           err.style.display='block'; return; }
+  if(!selectedFile){ err.textContent='Sélectionne un fichier.'; err.style.display='block'; return; }
   closeUpload();
-  processUpload(selectedFile,{cours:cours,cat:currentCat,eleve:document.getElementById('up-eleve').value.trim(),annee:document.getElementById('up-annee').value,choree:document.getElementById('up-choree').value});
+  processUpload(selectedFile, { vidname:vidname, tag:tag, cours:cours, eleve:eleve });
 }
 
 async function processUpload(file, meta) {
@@ -1962,6 +2367,105 @@ async function checkSession() {
 document.addEventListener('DOMContentLoaded', function() {
   checkSession();
 });
+
+// ── PHOTOS ──
+var photos = [];
+var pendingPhotoFilesArr = [];
+var pendingPhotoIdx = 0;
+var selectedPhotoTag = '';
+
+function handlePhotosUpload(files) {
+  if(!files||!files.length) return;
+  pendingPhotoFilesArr = Array.from(files);
+  pendingPhotoIdx = 0;
+  selectedPhotoTag = '';
+  // Réinitialiser les tag buttons
+  document.querySelectorAll('#photo-tag-btn-row .tag-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('selected-photo-tag').value = '';
+  document.getElementById('photo-tag-modal').style.display = 'flex';
+}
+
+function selectPhotoTag(btn) {
+  document.querySelectorAll('#photo-tag-btn-row .tag-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  document.getElementById('selected-photo-tag').value = btn.dataset.tag;
+  selectedPhotoTag = btn.dataset.tag;
+}
+
+function cancelPhotoUpload() {
+  document.getElementById('photo-tag-modal').style.display = 'none';
+  pendingPhotoFilesArr = [];
+  document.getElementById('photo-upload-input').value = '';
+}
+
+function confirmPhotoUpload() {
+  var tag = document.getElementById('selected-photo-tag').value;
+  if(!tag){ alert('Choisis un tag pour ta photo.'); return; }
+  document.getElementById('photo-tag-modal').style.display = 'none';
+  // Lire et stocker toutes les photos
+  pendingPhotoFilesArr.forEach(function(file){
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      photos.unshift({
+        id: Date.now()+Math.random(),
+        url: e.target.result,
+        tag: tag,
+        user_name: currentUser.name,
+        user_initials: currentUser.initials,
+        user_email: currentUser.email,
+        date: new Date().toLocaleDateString('fr-FR')
+      });
+      renderPhotos();
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('photo-upload-input').value = '';
+}
+
+function renderPhotos() {
+  var grid = document.getElementById('photos-grid');
+  var count = document.getElementById('photos-count');
+  var filtered = photosTagFilter==='all' ? photos
+    : photos.filter(function(p){ return p.tag===photosTagFilter; });
+  count.textContent = filtered.length + (filtered.length>1?' photos':' photo');
+  if(!filtered.length){
+    grid.innerHTML='<div class="empty" style="grid-column:1/-1"><span class="empty-ico">📸</span><p>Aucune photo pour l\'instant.</p></div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(function(p,i){
+    var idx = photos.indexOf(p);
+    return '<div class="photo-item" onclick="openPhoto('+idx+')">'
+      +'<img src="'+p.url+'" loading="lazy">'
+      +'<span class="photo-tag-pill">'+p.tag+'</span>'
+      +'<span class="photo-owner">'+p.user_initials+'</span>'
+      +'</div>';
+  }).join('');
+}
+
+var currentPhotoIdx = 0;
+function openPhoto(i) {
+  currentPhotoIdx = i;
+  var p = photos[i];
+  document.getElementById('photo-modal-img').src = p.url;
+  document.getElementById('photo-modal-info-txt').innerHTML =
+    '<span style="font-size:13px;font-weight:500">'+p.tag+'</span>'
+    +'<span style="font-size:11px;color:#555">👤 '+p.user_name+' · '+p.date+'</span>';
+  var canDel = currentUser && (currentUser.email===p.user_email || currentUser.role==='admin');
+  document.getElementById('photo-modal-del').style.display = canDel?'block':'none';
+  document.getElementById('photo-modal').classList.add('open');
+}
+
+function closePhotoModal() {
+  document.getElementById('photo-modal').classList.remove('open');
+  document.getElementById('photo-modal-img').src = '';
+}
+
+function deleteCurrentPhoto() {
+  if(!confirm('Supprimer cette photo ?')) return;
+  photos.splice(currentPhotoIdx,1);
+  renderPhotos();
+  closePhotoModal();
+}
 
 // ── KEYBOARD ──
 document.addEventListener('keydown',function(e){
