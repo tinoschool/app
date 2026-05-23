@@ -586,14 +586,107 @@ body{background:#0a0a0a;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-weig
 
 <!-- SPLASH -->
 <div id="splash">
-  <div class="splash-title">TINOSCHOOL</div>
-  <div class="splash-sub">École de danse Hip-Hop · Île-de-France</div>
-  <div class="splash-form">
-    <input type="email" id="f-email" placeholder="Adresse e-mail">
-    <button class="btn-login" onclick="login()">Accéder à mon espace</button>
+  <div class="splash-bg"></div>
+  <div class="splash-logo-wrap" style="position:relative;z-index:1;text-align:center;margin-bottom:40px;animation:fadeDown .7s ease both">
+    <div class="splash-title">TINOSCHOOL</div>
+    <div class="splash-sub">École de danse Hip-Hop · Île-de-France</div>
   </div>
-  <div id="login-msg"></div>
-  <div class="splash-hint">Problème ? <a href="mailto:tinoschool.info@gmail.com">Contacter l'école</a></div>
+
+  <!-- ÉCRAN CONNEXION -->
+  <div id="screen-login" style="position:relative;z-index:1;width:calc(100% - 48px);max-width:340px;animation:fadeUp .7s .2s ease both">
+    <div class="field-wrap" style="margin-bottom:12px">
+      <div class="field-label">Adresse e-mail</div>
+      <input class="field-input" type="email" id="f-email" placeholder="prenom@exemple.fr" autocomplete="email">
+    </div>
+    <div class="field-wrap" style="margin-bottom:6px">
+      <div class="field-label">Mot de passe</div>
+      <div style="position:relative">
+        <input class="field-input" type="password" id="f-pwd" placeholder="••••••••" autocomplete="current-password" style="padding-right:44px">
+        <button onclick="togglePwd('f-pwd','eye-1')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#555;font-size:16px" id="eye-1">👁</button>
+      </div>
+    </div>
+    <div style="text-align:right;margin-bottom:16px">
+      <span onclick="showScreen('screen-forgot')" style="font-size:12px;color:#FFD000;cursor:pointer">Mot de passe oublié ?</span>
+    </div>
+    <button class="btn-login" onclick="doLogin()" id="btn-login">Accéder à mon espace</button>
+    <div id="login-msg" style="font-size:12px;color:#ff6b6b;text-align:center;margin-top:10px;min-height:18px"></div>
+    <div style="text-align:center;margin-top:16px;font-size:12px;color:#555">
+      Première connexion ? <span onclick="showScreen('screen-register')" style="color:#FFD000;cursor:pointer">Créer mon mot de passe</span>
+    </div>
+  </div>
+
+  <!-- ÉCRAN INSCRIPTION / PREMIER MOT DE PASSE -->
+  <div id="screen-register" style="display:none;position:relative;z-index:1;width:calc(100% - 48px);max-width:340px">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;text-align:center;margin-bottom:20px;color:#FFD000">
+      Première connexion
+    </div>
+    <div style="font-size:12px;color:#555;text-align:center;margin-bottom:20px;line-height:1.6">
+      Entre ton email et crée ton mot de passe.<br>Tu dois être dans la liste des adhérents.
+    </div>
+    <div class="field-wrap" style="margin-bottom:12px">
+      <div class="field-label">Adresse e-mail</div>
+      <input class="field-input" type="email" id="r-email" placeholder="prenom@exemple.fr" autocomplete="email">
+    </div>
+    <div class="field-wrap" style="margin-bottom:12px">
+      <div class="field-label">Mot de passe *</div>
+      <div style="position:relative">
+        <input class="field-input" type="password" id="r-pwd" placeholder="8 caractères minimum" autocomplete="new-password" style="padding-right:44px">
+        <button onclick="togglePwd('r-pwd','eye-2')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#555;font-size:16px" id="eye-2">👁</button>
+      </div>
+    </div>
+    <div class="field-wrap" style="margin-bottom:6px">
+      <div class="field-label">Confirmer le mot de passe *</div>
+      <div style="position:relative">
+        <input class="field-input" type="password" id="r-pwd2" placeholder="Répète ton mot de passe" autocomplete="new-password" style="padding-right:44px">
+        <button onclick="togglePwd('r-pwd2','eye-3')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#555;font-size:16px" id="eye-3">👁</button>
+      </div>
+    </div>
+    <!-- Force du mot de passe -->
+    <div id="pwd-strength-bar" style="height:3px;background:#222;border-radius:3px;margin:8px 0 4px;overflow:hidden">
+      <div id="pwd-strength-fill" style="height:100%;width:0%;transition:width .3s,background .3s;border-radius:3px"></div>
+    </div>
+    <div id="pwd-strength-txt" style="font-size:10px;color:#555;margin-bottom:14px"></div>
+    <button class="btn-login" onclick="doRegister()" id="btn-register">Créer mon compte</button>
+    <div id="register-msg" style="font-size:12px;color:#ff6b6b;text-align:center;margin-top:10px;min-height:18px"></div>
+    <div style="text-align:center;margin-top:14px;font-size:12px;color:#555">
+      Déjà un compte ? <span onclick="showScreen('screen-login')" style="color:#FFD000;cursor:pointer">Se connecter</span>
+    </div>
+  </div>
+
+  <!-- ÉCRAN MOT DE PASSE OUBLIÉ -->
+  <div id="screen-forgot" style="display:none;position:relative;z-index:1;width:calc(100% - 48px);max-width:340px">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;text-align:center;margin-bottom:20px;color:#FFD000">
+      Mot de passe oublié
+    </div>
+    <div style="font-size:12px;color:#555;text-align:center;margin-bottom:20px;line-height:1.6">
+      Entre ton email. Tu recevras un lien pour réinitialiser ton mot de passe.
+    </div>
+    <div class="field-wrap" style="margin-bottom:16px">
+      <div class="field-label">Adresse e-mail</div>
+      <input class="field-input" type="email" id="forgot-email" placeholder="prenom@exemple.fr">
+    </div>
+    <button class="btn-login" onclick="doForgot()" id="btn-forgot">Envoyer le lien</button>
+    <div id="forgot-msg" style="font-size:12px;text-align:center;margin-top:10px;min-height:18px"></div>
+    <div style="text-align:center;margin-top:14px;font-size:12px;color:#555">
+      <span onclick="showScreen('screen-login')" style="color:#FFD000;cursor:pointer">← Retour</span>
+    </div>
+  </div>
+
+  <!-- ÉCRAN VÉRIFICATION EMAIL -->
+  <div id="screen-verify" style="display:none;position:relative;z-index:1;width:calc(100% - 48px);max-width:340px;text-align:center">
+    <div style="font-size:56px;margin-bottom:16px">📧</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:10px;color:#FFD000">Vérifie tes emails</div>
+    <div style="font-size:13px;color:#888;line-height:1.7;margin-bottom:20px" id="verify-msg">
+      Un email de confirmation a été envoyé.<br>Clique sur le lien pour activer ton compte.
+    </div>
+    <button class="btn-login" onclick="showScreen('screen-login')" style="background:#222;color:#FFD000;border:1px solid rgba(255,208,0,.3)">
+      Retour à la connexion
+    </button>
+  </div>
+
+  <div class="splash-hint" style="position:relative;z-index:1;animation:fadeUp .7s .3s ease both;margin-top:20px">
+    Problème ? <a href="mailto:tinoschool.info@gmail.com" style="color:#FFD000;text-decoration:none">Contacter l'école</a>
+  </div>
 </div>
 
 <!-- APP -->
@@ -1518,68 +1611,261 @@ async function uploadToCloudinary(file, folder) {
   return await res.json();
 }
 
-// ── TAGS & FILTRES ──
-var communityTagFilter = 'all';
-var mineTagFilter = 'all';
-var photosTagFilter = 'all';
-var pendingPhotoFiles = [];
+// ══════════════════════════════════════
+//   SUPABASE AUTH — Connexion sécurisée
+// ══════════════════════════════════════
 
-function selectTag(btn) {
-  document.querySelectorAll('#tag-btn-row .tag-btn').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  document.getElementById('up-tag').value = btn.dataset.tag;
-}
-
-function setCommunityTag(tag, btn) {
-  communityTagFilter = tag;
-  document.querySelectorAll('#community-tag-filters .tag-filter').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  applyCommunityFilters();
-}
-
-function setMineTag(tag, btn) {
-  mineTagFilter = tag;
-  document.querySelectorAll('#mine-tag-filters .tag-filter').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  applyMineFilters();
-}
-
-function setPhotosTag(tag, btn) {
-  photosTagFilter = tag;
-  document.querySelectorAll('#photos-tag-filters .tag-filter').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  renderPhotos();
-}
-
-function applyCommunityFilters() {
-  renderCommunityVideos();
-}
-
-function applyMineFilters() {
-  renderMyVideos();
-}
-
-function sortVideos(list, sortVal) {
-  var sorted = list.slice();
-  if (sortVal === 'recent' || !sortVal) {
-    sorted.sort(function(a,b){ return new Date(b.created_at||b.date) - new Date(a.created_at||a.date); });
-  } else if (sortVal === 'ancien') {
-    sorted.sort(function(a,b){ return new Date(a.created_at||a.date) - new Date(b.created_at||b.date); });
-  }
-  return sorted;
-}
-
-function groupByMonth(list) {
-  var groups = {};
-  list.forEach(function(v) {
-    var d = new Date(v.created_at || v.date);
-    var key = isNaN(d) ? 'Autre' : d.toLocaleString('fr-FR',{month:'long',year:'numeric'});
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(v);
+// ── ÉCRANS ──
+function showScreen(id) {
+  ['screen-login','screen-register','screen-forgot','screen-verify'].forEach(function(s){
+    var el = document.getElementById(s);
+    if (el) el.style.display = 'none';
   });
-  return groups;
+  var target = document.getElementById(id);
+  if (target) target.style.display = 'block';
+  // Vider les messages
+  ['login-msg','register-msg','forgot-msg'].forEach(function(m){
+    var el = document.getElementById(m);
+    if (el) el.textContent = '';
+  });
 }
 
+function togglePwd(inputId, btnId) {
+  var input = document.getElementById(inputId);
+  var btn   = document.getElementById(btnId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁';
+  }
+}
+
+// ── FORCE MOT DE PASSE ──
+document.addEventListener('DOMContentLoaded', function() {
+  var pwdInput = document.getElementById('r-pwd');
+  if (pwdInput) {
+    pwdInput.addEventListener('input', function() {
+      checkPwdStrength(this.value);
+    });
+  }
+});
+
+function checkPwdStrength(pwd) {
+  var fill = document.getElementById('pwd-strength-fill');
+  var txt  = document.getElementById('pwd-strength-txt');
+  if (!fill || !txt) return;
+  var score = 0;
+  if (pwd.length >= 8)  score++;
+  if (pwd.length >= 12) score++;
+  if (/[A-Z]/.test(pwd)) score++;
+  if (/[0-9]/.test(pwd)) score++;
+  if (/[^A-Za-z0-9]/.test(pwd)) score++;
+  var colors = ['#ff4444','#ff8800','#FFD000','#44cc88','#00cc66'];
+  var labels = ['Très faible','Faible','Moyen','Fort','Très fort'];
+  var pct = Math.min(score * 20, 100);
+  fill.style.width  = pct + '%';
+  fill.style.background = colors[score-1] || '#333';
+  txt.textContent   = pwd.length ? labels[score-1] || '' : '';
+  txt.style.color   = colors[score-1] || '#555';
+}
+
+// ── CONNEXION ──
+async function doLogin() {
+  var email = document.getElementById('f-email').value.trim().toLowerCase();
+  var pwd   = document.getElementById('f-pwd').value;
+  var msg   = document.getElementById('login-msg');
+  var btn   = document.getElementById('btn-login');
+  if (!email) { msg.textContent = 'Entre ton adresse e-mail.'; return; }
+  if (!pwd)   { msg.textContent = 'Entre ton mot de passe.'; return; }
+
+  btn.disabled = true; btn.textContent = '⏳ Connexion…';
+  msg.textContent = '';
+
+  try {
+    var res = await fetch(SUPA_URL + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY
+      },
+      body: JSON.stringify({ email: email, password: pwd })
+    });
+    var data = await res.json();
+
+    if (data.error || !data.access_token) {
+      var errMsg = data.error_description || data.msg || 'Email ou mot de passe incorrect.';
+      if (errMsg.includes('Invalid login')) errMsg = 'Email ou mot de passe incorrect.';
+      if (errMsg.includes('Email not confirmed')) errMsg = 'Confirme ton email avant de te connecter.';
+      msg.textContent = errMsg;
+      btn.disabled = false; btn.textContent = 'Accéder à mon espace';
+      return;
+    }
+
+    // Stocker le token
+    localStorage.setItem('tino_token', data.access_token);
+    localStorage.setItem('tino_refresh', data.refresh_token);
+    sessionStorage.setItem('tino_token', data.access_token);
+
+    // Charger le profil membre
+    await loadUserFromToken(data.access_token);
+    btn.disabled = false; btn.textContent = 'Accéder à mon espace';
+
+  } catch(e) {
+    msg.textContent = 'Erreur de connexion. Réessaie.';
+    btn.disabled = false; btn.textContent = 'Accéder à mon espace';
+    console.error('login error:', e);
+  }
+}
+
+// ── INSCRIPTION ──
+async function doRegister() {
+  var email = document.getElementById('r-email').value.trim().toLowerCase();
+  var pwd   = document.getElementById('r-pwd').value;
+  var pwd2  = document.getElementById('r-pwd2').value;
+  var msg   = document.getElementById('register-msg');
+  var btn   = document.getElementById('btn-register');
+
+  if (!email) { msg.textContent = 'Entre ton adresse e-mail.'; return; }
+  if (pwd.length < 8) { msg.textContent = 'Le mot de passe doit faire au moins 8 caractères.'; return; }
+  if (pwd !== pwd2)   { msg.textContent = 'Les mots de passe ne correspondent pas.'; return; }
+
+  // Vérifier que l'email est dans la liste des membres Supabase
+  msg.textContent = '⏳ Vérification…';
+  btn.disabled = true;
+
+  try {
+    var checkRes = await getMemberFromDB(email);
+    if (!checkRes) {
+      msg.textContent = '⛔ Cet email n\'est pas dans la liste des adhérents. Contacte tinoschool.info@gmail.com';
+      btn.disabled = false; btn.textContent = 'Créer mon compte';
+      return;
+    }
+
+    // Créer le compte Supabase Auth
+    btn.textContent = '⏳ Création du compte…';
+    var res = await fetch(SUPA_URL + '/auth/v1/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY },
+      body: JSON.stringify({ email: email, password: pwd })
+    });
+    var data = await res.json();
+
+    if (data.error) {
+      var errMsg = data.msg || data.error_description || 'Erreur lors de la création du compte.';
+      if (errMsg.includes('already registered')) errMsg = 'Ce compte existe déjà. Utilise "Se connecter".';
+      msg.style.color = '#ff6b6b';
+      msg.textContent = errMsg;
+      btn.disabled = false; btn.textContent = 'Créer mon compte';
+      return;
+    }
+
+    // Succès
+    document.getElementById('verify-msg').innerHTML =
+      'Un email de confirmation a été envoyé à <strong style="color:#FFD000">' + email + '</strong>.<br><br>'
+      + 'Clique sur le lien dans l\'email pour activer ton compte, puis reviens te connecter.';
+    showScreen('screen-verify');
+    btn.disabled = false; btn.textContent = 'Créer mon compte';
+
+  } catch(e) {
+    msg.textContent = 'Erreur. Réessaie.';
+    btn.disabled = false; btn.textContent = 'Créer mon compte';
+  }
+}
+
+// ── MOT DE PASSE OUBLIÉ ──
+async function doForgot() {
+  var email = document.getElementById('forgot-email').value.trim().toLowerCase();
+  var msg   = document.getElementById('forgot-msg');
+  var btn   = document.getElementById('btn-forgot');
+  if (!email) { msg.textContent = 'Entre ton adresse e-mail.'; msg.style.color='#ff6b6b'; return; }
+
+  btn.disabled = true; btn.textContent = '⏳ Envoi…';
+
+  try {
+    await fetch(SUPA_URL + '/auth/v1/recover', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY },
+      body: JSON.stringify({ email: email })
+    });
+    msg.style.color = '#44cc88';
+    msg.textContent = '✅ Email envoyé ! Vérifie ta boîte mail.';
+    btn.disabled = false; btn.textContent = 'Envoyer le lien';
+  } catch(e) {
+    msg.style.color = '#ff6b6b';
+    msg.textContent = 'Erreur. Réessaie.';
+    btn.disabled = false; btn.textContent = 'Envoyer le lien';
+  }
+}
+
+// ── CHARGER UTILISATEUR DEPUIS TOKEN ──
+async function loadUserFromToken(token) {
+  try {
+    // Récupérer l\'email depuis le token JWT
+    var payload = JSON.parse(atob(token.split('.')[1]));
+    var email   = payload.email || payload.sub;
+
+    // Charger le profil depuis members
+    var res = await fetch(
+      SUPA_URL + '/rest/v1/members?email=eq.' + encodeURIComponent(email) + '&limit=1',
+      { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + token } }
+    );
+    var members = await res.json();
+    var dbMember = members && members[0];
+
+    var role = 'membre';
+    if (dbMember) {
+      role = dbMember.role || 'membre';
+      if (dbMember.expires_at && new Date(dbMember.expires_at) < new Date()) {
+        role = 'membre';
+      }
+    }
+
+    currentUser = {
+      id:         dbMember ? dbMember.id : Date.now(),
+      name:       dbMember ? (dbMember.name || email.split('@')[0]) : email.split('@')[0],
+      email:      email,
+      initials:   dbMember ? (dbMember.initials || email.slice(0,2).toUpperCase()) : email.slice(0,2).toUpperCase(),
+      role:       role,
+      expires_at: dbMember ? dbMember.expires_at : null,
+      profile:    dbMember ? (dbMember.profile || {}) : {},
+      photoUrl:   dbMember && dbMember.profile ? dbMember.profile.photoUrl : null,
+      token:      token
+    };
+
+    // Mettre à jour les headers Supabase avec le token utilisateur
+    SUPA_HEADERS['Authorization'] = 'Bearer ' + token;
+
+    startApp();
+  } catch(e) {
+    console.error('loadUserFromToken error:', e);
+    document.getElementById('login-msg').textContent = 'Erreur de chargement du profil.';
+  }
+}
+
+// ── SESSION PERSISTANTE ──
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  checkSession();
+});
+
+// ── LOGOUT ──
+
+
+// Enter key
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter') return;
+  var loginVisible   = document.getElementById('screen-login')   && document.getElementById('screen-login').style.display   !== 'none';
+  var registerVisible= document.getElementById('screen-register')&& document.getElementById('screen-register').style.display !== 'none';
+  var forgotVisible  = document.getElementById('screen-forgot')  && document.getElementById('screen-forgot').style.display   !== 'none';
+  if (loginVisible)    doLogin();
+  if (registerVisible) doRegister();
+  if (forgotVisible)   doForgot();
+});
+
+// ── TAGS & FILTRES ──
 // ── COMMUNITY VIDEOS — toutes les vidéos adhérents ──
 var communityVideos = [];
 var communityFilter = 'all';
@@ -1795,258 +2081,6 @@ async function loadPrivateTracks() {
 }
 
 // ── DATA ──
-var WHITELIST = [
-  // ── Admin & équipe ──
-  'tinoschool.info@gmail.com',
-  'tino@tinoschool.com',
-  'gaetan.laguerre@gmail.com',
-  'teegan.yinyangcrew@gmail.com',
-  'sabripsy.co@gmail.com',
-  'alexandraangoua@gmail.com',
-  'davidstelie@ymail.com',
-  'loxytinoschool@gmail.com',
-  'sirine.menouer2@gmail.com',
-  // ── Adhérents 2025-2026 ──
-  'karimapezet@yahoo.fr',
-  'jerome.pezet863@orange.fr',
-  'massilya12@hotmail.fr',
-  'frantz.am@gmail.com',
-  'yaminaamellal@outlook.fr',
-  'samia.amraoui@hotmail.fr',
-  'amrosarah@gmail.com',
-  'aurelie-arnoux.a@live.fr',
-  'lautiane.serbin@live.fr',
-  'lauriane.serbin@live.fr',
-  'laur.desmontils@gmail.com',
-  'elmvirginie@gmail.com',
-  'salmayapple@gmail.com',
-  'fatima.ayachi@bechtle.com',
-  'salim.ayachi@laposte.net',
-  'ninasky69@msn.com',
-  'soumi.azzaoui@hotmail.fr',
-  'chirineb2008@hotmail.fr',
-  'masse_cecile@hotmail.com',
-  'shaleny@hotmail.fr',
-  'geiger.angelique@gmail.com',
-  'beaujour.anissa@gmail.com',
-  'teneesha@hotmail.fr',
-  'jfjbelleau@gmail.com',
-  'houda.ayoub93@yahoo.fr',
-  'nadia.benouda@hotmail.fr',
-  'benrais.ines@gmail.com',
-  'nathalielecar@hotmail.fr',
-  'auriane.luxon@gmail.com',
-  'mence.lovely@gmail.com',
-  'enora.bordin@gmail.com',
-  'yassine.boudjenane15@gmail.com',
-  'vanessa77124@gmail.com',
-  'p.deborah@hotmail.fr',
-  'aurelielaurent.jb@gmail.com',
-  'roxanegauthier2608@gmail.com',
-  'estelle.bruneau@outlook.com',
-  'sandra.nk0208@gmail.com',
-  'leslie.deloumeaux@gmail.com',
-  'rookya93@gmail.com',
-  'sliwkar@msn.com',
-  'alison.anselin.aa@gmail.com',
-  'stefolszewski@hotmail.com',
-  'james.castel@hotmail.fr',
-  'mathilde.c2007@outlook.fr',
-  'izidor17@msn.com',
-  'ftalchan72@gmail.com',
-  'tacitaisabelle@gmail.com',
-  'sabripsy.co@gmail.com',
-  'isa.corvo@live.fr',
-  'moussabale@hotmail.fr',
-  'mikadark@hotmail.fr',
-  'ads.ladyo@hotmail.fr',
-  'cindytanguy@yahoo.fr',
-  'wendy.loza@hotmail.fr',
-  'audrey_declercq@yahoo.fr',
-  'samanthamonteiro@hotmail.fr',
-  'moreirapereiraluiza23@gmail.com',
-  'dinalacroix@hotmail.fr',
-  'caroline.duham@gmail.com',
-  'keria.gaspaldy@yahoo.fr',
-  'kitoko_93@hotmail.fr',
-  'najouachekroun@gmail.com',
-  'sobana.dharmeraja@gmail.com',
-  'f.diakite@tremblayenfrance.fr',
-  'sonia.rahmi@live.fr',
-  'djanisgravier@gmail.com',
-  'nas.djemai@gmail.com',
-  'mllejasmine93@gmail.com',
-  'dridi.hanen@outlook.fr',
-  'wildyaduvallon@gmail.com',
-  'sonia.ifrani@gmail.com',
-  'sonia78260@hotmail.com',
-  'lydie.serpadski@gmail.com',
-  'moustinrebecca@gmail.com',
-  'aurelie.chust@gmail.com',
-  'inesjaouachi@hotmail.fr',
-  'fautrai.mickael@gmail.com',
-  'anaisfavory48@gmail.com',
-  'stephanie.detanval@gmail.com',
-  'nya98@ymail.com',
-  'mohamedfofana759@gmail.com',
-  'vololonasona@hotmail.com',
-  'natalia.saranciuc.97@bk.ru',
-  'claire.paltani@yahoo.com',
-  'fernandesv@ymail.com',
-  'badiaga3@yahoo.fr',
-  'johanna-gbago@hotmail.fr',
-  'nathalie.genet@afpa.fr',
-  'kesgz09@icloud.com',
-  'linda.karima@hotmail.fr',
-  'e.afonso.1993@gmail.com',
-  'elysou1991@gmail.com',
-  'jordanegravelot@gmail.com',
-  'oceane.pentsch@gmail.com',
-  'kelly_pentsch2@yahoo.fr',
-  'carla.grigy93@gmail.com',
-  'annesophiastidois@gmail.com',
-  'jeniferbourhis@gmail.com',
-  'k.halaibi@hanny.fr',
-  'thiam.of@gmail.com',
-  'souhilajaafari@gmail.com',
-  'nellyruster@gmail.com',
-  'tomas.gwendoline@gmail.com',
-  'herinou974@gmail.com',
-  'nabilmonastir@hotmail.fr',
-  'poeusy@hotmail.com',
-  'sainte-rose.s@hotmail.fr',
-  'm.vaz@outlook.fr',
-  'aureliekajiou84@gmail.com',
-  'hyrielle1@gmail.com',
-  'musti75010@gmail.com',
-  'pamela.wkenmoe@gmail.com',
-  'oeb01042011@hotmail.com',
-  'ninellelando@yahoo.com',
-  'kadeysoumare@gmail.com',
-  'stecy.ko@gmail.com',
-  'melissa.beedasy@yahoo.fr',
-  'gaetan.laguerre@gmail.com',
-  'alexandraangoua@gmail.com',
-  'angelinapouc@gmail.com',
-  'tonia.lucci@gmail.com',
-  'loulamalle@gmail.com',
-  'auroredugain974@gmail.com',
-  'bambidiabira22@gmail.com',
-  'laure93170@hotmail.fr',
-  'borinn.lay@gmail.com',
-  'audrey.lemarc@gmail.com',
-  'judicael.lenay@gmail.com',
-  'coralieletalec75@gmail.com',
-  'yanat93@yahoo.fr',
-  'gary.leretaille@but.fr',
-  'hannalibersou@icloud.com',
-  'mfra@hotmail.fr',
-  'yasmine.ljubisavljevic@gmail.com',
-  'ljuby@hotmail.fr',
-  'army9hella@gmail.com',
-  'veronicalopes@hotmail.fr',
-  'zohra.mahrous@yahoo.fr',
-  'makila.mareva@gmail.com',
-  'aurelia.mldr@gmail.com',
-  'jacy_13@hotmail.com',
-  'eric_martinel@outlook.fr',
-  'barberish@gmail.com',
-  'sandraguillaume972@gmail.com',
-  'krouriyasmina@gmail.com',
-  'mekid.madjid@gmail.com',
-  'sirine.menouer2@gmail.com',
-  'rodrigue.meynard@gmail.com',
-  'catalina.moldovan99@gmail.com',
-  'tiffany.groh@yahoo.fr',
-  'cadasse.em@gmail.com',
-  'montboulikenmoe@gmail.com',
-  'he.abdelkrim@gmail.com',
-  'johannmormin@gmail.com',
-  'noulettevirginie@msn.com',
-  'nassimachell@hotmail.fr',
-  's.moilime@yqhoo.fr',
-  's.moilime@yahoo.fr',
-  'maelenn.fraquet@orange.fr',
-  'salymata@msn.com',
-  'tli.ngo.marie@gmail.com',
-  'regisnkissi@hotmail.com',
-  'zeurlo@hotmail.com',
-  'annouranouhou4@gmail.com',
-  'alissa.nouvet@icloud.com',
-  'samiaouadah1806@gmail.com',
-  'fadi_84@live.fr',
-  'ovbymimi@gmail.com',
-  'benomari_d@hotmail.fr',
-  'pacurarpaulina@gmail.com',
-  'dalila.alexandre@gmail.com',
-  'prscabourgade@gmail.com',
-  'priscabourgade@gmail.com',
-  'diana.pereghinet@gmail.com',
-  'catarina77@live.fr',
-  'sandrapierre980@gmail.com',
-  'amel.essoulaiki@gmail.com',
-  'stephanienauck@hotmail.fr',
-  'selvin_stephany@yahoo.fr',
-  'cponzio@outlook.com',
-  'meelanie.leve@gmail.com',
-  'audreyvictorin971@hotmail.com',
-  'cdm.osteopathe@gmail.com',
-  'nadetdel@gmail.com',
-  'shaineze.touahri@yahoo.com',
-  'coline.brismontier@gmail.com',
-  'laurie.ratsianoh@gmail.com',
-  'brinsarra@hotmail.fr',
-  'benhadjkobairemenel@hotmail.fr',
-  'david.ribieiro@gmail.com',
-  'sabrinaveneau@gmail.com',
-  'lablonde1410@hotmail.fr',
-  'fmanerep@gmail.com',
-  'banksthecoon@gmail.com',
-  'rosehannah.recher@gmail.com',
-  'gaellegoeneutte@gmail.com',
-  'olivia.morvany@gmail.com',
-  'deborah-freitas@live.fr',
-  'jessica@chronodesk.fr',
-  'zbelmekki@seinesaintdenis.fr',
-  'm.santos1@free.fr',
-  'amuthini@live.de',
-  'sellaouinarimene@gmail.com',
-  'lanaski273@gmail.com',
-  'marythayani@gmail.com',
-  'truong-natacha@hotmail.fr',
-  'mawawa.kiesekilema@yahoo.fr',
-  'cristina_morari_89@mail.ru',
-  'djoulissasimonsamedi@gmail.com',
-  'marcpam@orange.fr',
-  'diye.gaye@gmail.com',
-  'sinnasivalingam@gmail.com',
-  'mariesivalingam55@gmail.com',
-  'ninispicy11@hotmail.fr',
-  'nabia.souihi@gmail.com',
-  'sarah.bidjou93@gmail.com',
-  'therese-g@hotmail.fr',
-  'hawa_d@live.fr',
-  'phleya@hotmail.fr',
-  'najwachitour@gmail.com',
-  'karima.tokoto@yahoo.fr',
-  'scherazadeselma@yahoo.fr',
-  'serra.laetitiaa@gmail.com',
-  'brandan_saru@hotmail.fr',
-  'sucrinho@gmail.com',
-  'jayleen238@gmail.com',
-  'j.vassez@ertie.fr',
-  'jb.vassez@gmail.com',
-  'velosocali83@gmail.com',
-  'ingrid.galois@gmail.com',
-  'joannakolli@gmail.com',
-  'paul.dgs@gmail.com',
-  'olivia.vongprasith@free.fr',
-  'pwembomaungu@gmail.com',
-  'wendji_dry@yahoo.fr',
-  'paolozamparo13@gmail.com',
-  'ilhame.daoudi@gmail.com',
-];
-var BETA = true;
 
 var MEMBERS = [
   {id:1,name:'Tinoschool',email:'tinoschool.info@gmail.com',initials:'TS',role:'admin'},
@@ -2113,27 +2147,7 @@ var myFilter = 'all';
 var vFilter = 'all';
 
 // ── AUTH ──
-function login() {
-  var email = document.getElementById('f-email').value.trim().toLowerCase();
-  var msg = document.getElementById('login-msg');
-  if (!email) { msg.textContent = 'Entre ton adresse e-mail.'; return; }
-  if (BETA && WHITELIST.indexOf(email) === -1) {
-    msg.textContent = '⛔ Accès restreint — contacte l\'équipe Tinoschool.';
-    return;
-  }
-  msg.textContent = '';
-  var found = null;
-  for (var i=0;i<MEMBERS.length;i++) { if (MEMBERS[i].email.toLowerCase()===email) { found=MEMBERS[i]; break; } }
-  if (!found) {
-    var parts = email.split('@')[0].split(/[\.\-_]/);
-    var name = parts.map(function(w){return w.charAt(0).toUpperCase()+w.slice(1);}).join(' ');
-    var initials = parts.map(function(w){return w.charAt(0).toUpperCase();}).join('').slice(0,2);
-    found = {id:Date.now(),name:name,email:email,initials:initials,role:'membre'};
-    MEMBERS.push(found);
-  }
-  currentUser = found;
-  startApp();
-}
+
 
 function startApp() {
   var u = currentUser;
