@@ -2905,51 +2905,72 @@ function updateProfileDisplay() {
 
 // ── SESSION PERSISTANTE ──
 async function checkSession() {
-  // Essayer localStorage, sessionStorage puis cookie
-  var savedEmail = localStorage.getItem('tino_session')
-    || sessionStorage.getItem('tino_session')
-    || (document.cookie.match(/tino_session=([^;]+)/) || [])[1];
-  if (!savedEmail) return; // Pas de session → page de connexion normale
-
-  // Reconnexion automatique
-  try {
-    var dbMember = await getMemberFromDB(savedEmail);
-    if (dbMember) {
-      // Vérifier expiration
-      var role = dbMember.role || 'membre';
-      if (dbMember.expires_at && new Date(dbMember.expires_at) < new Date()) {
-        role = 'membre'; // Accès expiré → rétrogradé automatiquement
+  // 1. Intercepter le token Supabase dans l'URL (#access_token=...)
+  var hash = window.location.hash;
+  if (hash && hash.includes('access_token=')) {
+    var params = new URLSearchParams(hash.substring(1));
+    var token   = params.get('access_token');
+    var refresh = params.get('refresh_token');
+    var type    = params.get('type');
+    if (token) {
+      window.history.replaceState(null, '', window.location.pathname);
+      if (type === 'recovery') {
+        _resetToken = token;
+        showScreen('sc-reset');
+        return;
       }
-      currentUser = {
-        id:         dbMember.id,
-        name:       dbMember.name || savedEmail.split('@')[0],
-        email:      dbMember.email,
-        initials:   dbMember.initials || savedEmail.slice(0,2).toUpperCase(),
-        role:       role,
-        expires_at: dbMember.expires_at || null,
-        profile:    dbMember.profile || {},
-        photoUrl:   dbMember.profile ? dbMember.profile.photoUrl : null
-      };
-    } else {
-      // Email non trouvé dans Supabase → effacer session
-      localStorage.removeItem('tino_session');
-  sessionStorage.removeItem('tino_session');
-  document.cookie = 'tino_session=;path=/;max-age=0';
+      saveSession(token, refresh);
+      await loadUserFromToken(token);
       return;
     }
-    startApp();
-  } catch(e) {
-    // Erreur réseau → fallback local
-    var found = MEMBERS.find(function(m){ return m.email === savedEmail; });
-    if (found) {
-      currentUser = found;
-      startApp();
-    } else {
-      localStorage.removeItem('tino_session');
-  sessionStorage.removeItem('tino_session');
-  document.cookie = 'tino_session=;path=/;max-age=0';
-    }
   }
+  // 2. Lire le token JWT depuis localStorage
+  var token = null;
+  try { token = localStorage.getItem('tino_token'); } catch(e) {}
+  if (!token) { try { token = sessionStorage.getItem('tino_token'); } catch(e) {} }
+  if (!token) return;
+  try {
+    // Vérifier expiration du token
+    var payload = JSON.parse(atob(token.split('.')[1]));
+    if (payload.exp && payload.exp * 1000 < Date.now()) {
+      // Token expiré → essayer de le rafraîchir
+      var refreshToken = null;
+      try { refreshToken = localStorage.getItem('tino_refresh'); } catch(e) {}
+      if (refreshToken) {
+        var res = await fetch(SUPA_URL + '/auth/v1/token?grant_type=refresh_token', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json','apikey':SUPA_KEY},
+          body: JSON.stringify({refresh_token: refreshToken})
+        });
+        var data = await res.json();
+        if (data.access_token) {
+          saveSession(data.access_token, data.refresh_token);
+          token = data.access_token;
+        } else {
+          clearSession();
+          return;
+        }
+      } else {
+        clearSession();
+        return;
+      }
+    }
+    await loadUserFromToken(token);
+  } catch(e) {
+    console.error('checkSession error:', e);
+    clearSession();
+  }
+}
+
+function saveSession(token, refresh) {
+  try { localStorage.setItem('tino_token', token); } catch(e) {}
+  try { if (refresh) localStorage.setItem('tino_refresh', refresh); } catch(e) {}
+  try { sessionStorage.setItem('tino_token', token); } catch(e) {}
+}
+
+function clearSession() {
+  try { localStorage.removeItem('tino_token'); localStorage.removeItem('tino_refresh'); } catch(e) {}
+  try { sessionStorage.removeItem('tino_token'); } catch(e) {}
 }
 
 // Vérifier la session dès le chargement
@@ -2984,6 +3005,7 @@ var photos = [];
 var pendingPhotoFilesArr = [];
 var pendingPhotoIdx = 0;
 var selectedPhotoTag = '';
+var photosTagFilter = 'all';
 
 function handlePhotosUpload(files) {
   if(!files||!files.length) return;
@@ -3054,6 +3076,13 @@ function renderPhotos() {
 }
 
 var currentPhotoIdx = 0;
+function setPhotosTag(tag, btn) {
+  document.querySelectorAll('#photos-content .tag-filter, #page-photos .tag-filter').forEach(function(b){b.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+  photosTagFilter = tag;
+  renderPhotos();
+}
+
 function openPhoto(i) {
   currentPhotoIdx = i;
   var p = photos[i];
