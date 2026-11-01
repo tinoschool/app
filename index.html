@@ -904,7 +904,7 @@ async function submitUpload(){
   closeUploadModal();setProg('up','Envoi de la vidéo…',0);
   try{
     var c=await cloudUpload(f,'tinoschool/videos',function(p){setProg('up','Envoi de la vidéo…',p*0.95);});
-    await dbPost('videos',{vidname:name,name:name,url:c.secure_url,tag:tag,cours:cours,eleve:eleve,user_email:cu.email,user_name:cu.name,cloudinary_id:c.public_id});
+    await dbPost('videos',{vidname:name,name:name,url:c.secure_url,tag:tag,cours:cours,eleve:eleve,user_email:cu.email,user_name:dispName(),cloudinary_id:c.public_id});
     setProg('up','Terminé',1);endProg('up');selUpFile=null;await loadCommunityVideos();
   }catch(e){$('up-prog').classList.remove('show');alert('Erreur lors de l\'envoi : '+e.message);}
 }
@@ -933,7 +933,7 @@ async function confirmPhotoUpload(){
     try{
       setProg('ph',lbl,i/files.length);
       var c=await cloudUpload(files[i],'tinoschool/photos',function(p){setProg('ph',lbl,(i+p*0.9)/files.length);});
-      await dbPost('photos',{url:c.secure_url,tag:tag,user_email:cu.email,user_name:cu.name,user_initials:cu.initials,cloudinary_id:c.public_id});
+      await dbPost('photos',{url:c.secure_url,tag:tag,user_email:cu.email,user_name:dispName(),user_initials:cu.initials,cloudinary_id:c.public_id});
       ok++;
     }catch(e){errs.push(files[i].name+' : '+e.message);}
   }
@@ -1076,6 +1076,7 @@ function switchAdmin(tab,btn){
   ['actus','membres','notifs'].forEach(function(t){$('admin-'+t).style.display=t===tab?'block':'none';});
   if(tab==='membres')loadAdminMembers();
 }
+function dispName(){var ps=cu&&cu.profile&&cu.profile.pseudo?String(cu.profile.pseudo).trim():'';return ps||(cu&&cu.name)||'';}
 async function loadActus(){
   try{var d=await dbGet('actus');ACTUS=(Array.isArray(d)?d:[]).map(function(x){return {id:x.id,emoji:x.emoji||'📢',cat:x.cat||'Info',title:x.title||'',excerpt:x.excerpt||'',date:x.date_label||''};});}
   catch(e){console.error('actus',e);ACTUS=[];}
