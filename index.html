@@ -214,6 +214,7 @@ button{font-family:inherit}
 .modal-inner{width:calc(100% - 28px);max-width:440px;background:var(--card);border-radius:18px;padding:24px;position:relative;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.4);border:1px solid var(--brd)}
 .modal-inner h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:500;text-align:center;margin-bottom:18px}
 .modal-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:var(--bg2);border:1px solid var(--brd);color:var(--txt2);font-size:15px;cursor:pointer}
+.req-zone{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:4px}.req-zone .btn-gold{width:auto;padding:10px 20px;font-size:13px}.req-state{font-size:12px;color:var(--gold);line-height:1.5}.req-card{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:12px;margin-bottom:10px}.req-card .r-nm{font-weight:600;font-size:14px}.req-card .r-in{font-size:12px;color:var(--txt3);margin:3px 0;line-height:1.5}.req-btns{display:flex;gap:8px;margin-top:10px}.req-btns button{flex:1;padding:9px;border-radius:9px;border:1px solid var(--brd);background:var(--bg2);color:var(--txt);font-size:12px;cursor:pointer}.req-btns .ok{background:var(--gold);color:#fff;border-color:var(--gold)}
 .up-err{color:var(--red);font-size:12px;text-align:center;margin-top:10px;display:none}
 .vid-modal,.photo-modal,.audio-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:300;flex-direction:column;justify-content:center;align-items:center;padding:16px}
 .vid-modal.open,.photo-modal.open,.audio-modal.open{display:flex}
@@ -300,7 +301,7 @@ button{font-family:inherit}
     <div class="topbar-r">
       <button class="t-btn" id="theme-btn" onclick="toggleTheme()" title="Changer le thème">🌙</button>
       <div class="t-btn" onclick="goPage('notifs')" title="Notifications">🔔<div class="notif-dot" id="notif-dot">0</div></div>
-      <div class="t-btn" id="admin-btn" onclick="goPage('admin')" title="Admin">⚙️</div>
+      <div class="t-btn" id="admin-btn" onclick="goPage('admin')" title="Admin">⚙️<div class="notif-dot" id="req-dot">0</div></div>
       <div class="t-btn t-ava" id="u-ava" onclick="goPage('profil')">TS</div>
     </div>
   </div>
@@ -335,7 +336,7 @@ button{font-family:inherit}
         <div class="row-h"><h3>Vidéos de l'association</h3><span id="c-count" style="cursor:default">0 vidéo</span></div>
         <div id="c-list"><div class="empty"><span class="empty-ico">🎬</span><p>Chargement…</p></div></div>
       </div>
-      <div class="lock-ov" id="community-lock"><div class="ico">🔒</div><div class="ttl">Accès Adhérents</div><div class="desc">Les vidéos de l'association sont réservées aux adhérents.</div><div class="pill">Réserver votre abonnement</div></div>
+      <div class="lock-ov" id="community-lock"><div class="ico">🔒</div><div class="ttl">Accès Adhérents</div><div class="desc">Les vidéos de l'association sont réservées aux adhérents.</div><div class="pill">Réserver votre abonnement</div><div class="req-zone"></div></div>
     </div></div>
     <div id="tab-school" style="display:none">
       <div class="vtabs"><button class="vtab active" onclick="filterSchool('all',this)">Tout</button><button class="vtab" onclick="filterSchool('spectacle',this)">Spectacles</button><button class="vtab" onclick="filterSchool('festival',this)">Festival</button><button class="vtab" onclick="filterSchool('battle',this)">Battles</button><button class="vtab" onclick="filterSchool('cours',this)">Cours</button></div>
@@ -359,7 +360,7 @@ button{font-family:inherit}
         <div class="row-h"><h3>Mes entraînements</h3><span id="m-count" style="cursor:default">0 vidéo</span></div>
         <div id="m-list"></div>
       </div>
-      <div class="lock-ov" id="mine-lock"><div class="ico">🔒</div><div class="ttl">Accès Adhérents</div><div class="desc">Le téléversement est réservé aux adhérents.</div><div class="pill">Réserver votre abonnement</div></div>
+      <div class="lock-ov" id="mine-lock"><div class="ico">🔒</div><div class="ttl">Accès Adhérents</div><div class="desc">Le téléversement est réservé aux adhérents.</div><div class="pill">Réserver votre abonnement</div><div class="req-zone"></div></div>
     </div></div>
   </div>
 
@@ -377,7 +378,7 @@ button{font-family:inherit}
         <div class="row-h"><h3>Galerie</h3><span id="ph-count" style="cursor:default">0 photo</span></div>
         <div class="photos-grid" id="ph-grid"></div>
       </div>
-      <div class="lock-ov" id="photos-lock"><div class="ico">📸</div><div class="ttl">Accès Adhérents</div><div class="desc">La galerie est réservée aux adhérents.</div><div class="pill">Réserver votre abonnement</div></div>
+      <div class="lock-ov" id="photos-lock"><div class="ico">📸</div><div class="ttl">Accès Adhérents</div><div class="desc">La galerie est réservée aux adhérents.</div><div class="pill">Réserver votre abonnement</div><div class="req-zone"></div></div>
     </div>
   </div>
 
@@ -407,7 +408,7 @@ button{font-family:inherit}
         <div class="row-h"><h3>Toutes les musiques</h3><span id="tracks-count" style="cursor:default">0 titre</span></div>
         <div id="tracks-list"></div>
       </div>
-      <div class="lock-ov" id="music-lock"><div class="ico">🎵</div><div class="ttl">Accès Adhérents</div><div class="desc">Les musiques sont réservées aux adhérents.</div><div class="pill">Réserver votre abonnement</div></div>
+      <div class="lock-ov" id="music-lock"><div class="ico">🎵</div><div class="ttl">Accès Adhérents</div><div class="desc">Les musiques sont réservées aux adhérents.</div><div class="pill">Réserver votre abonnement</div><div class="req-zone"></div></div>
     </div></div>
   </div>
 
@@ -430,7 +431,7 @@ button{font-family:inherit}
   <!-- ADMIN -->
   <div class="page" id="page-admin">
     <div class="admin-hdr"><span style="font-size:24px">⚙️</span><div><h2>Espace Admin</h2><p>Panneau d'administration Tinoschool</p></div></div>
-    <div class="vtabs" id="admin-tabs"><button class="vtab active" onclick="switchAdmin('actus',this)">Actualités</button><button class="vtab" onclick="switchAdmin('membres',this)">Membres</button><button class="vtab" onclick="switchAdmin('notifs',this)">Notifications</button></div>
+    <div class="vtabs" id="admin-tabs"><button class="vtab active" onclick="switchAdmin('actus',this)">Actualités</button><button class="vtab" onclick="switchAdmin('membres',this)">Membres</button><button class="vtab" onclick="switchAdmin('notifs',this)">Notifications</button><button class="vtab" id="tab-demandes" onclick="switchAdmin('demandes',this)">Demandes</button></div>
     <div id="admin-actus">
       <div class="admin-sec">Publier une actualité</div>
       <div class="compose">
@@ -441,6 +442,7 @@ button{font-family:inherit}
       </div>
       <div class="admin-sec">Publiées</div><div id="admin-actus-list"></div>
     </div>
+    <div id="admin-demandes" style="display:none"><div class="admin-sec">Demandes d'accès adhérent</div><div id="admin-demandes-list"></div></div>
     <div id="admin-membres" style="display:none">
       <div class="admin-sec">Attribution des rôles</div>
       <p style="font-size:12px;color:var(--txt3);margin-bottom:14px;line-height:1.6">Seul <span style="color:var(--gold)">tinoschool.info@gmail.com</span> peut modifier les rôles.</p>
@@ -515,6 +517,13 @@ button{font-family:inherit}
   <div style="margin-bottom:11px"><span class="fl-lbl">Description</span><input class="fi-input" id="pl-desc" placeholder="Facultatif"></div>
   <div style="margin-bottom:14px"><span class="fl-lbl">Musiques</span><div id="pl-tracks-sel" style="max-height:200px;overflow-y:auto;background:var(--bg2);border-radius:8px;padding:8px;margin-top:6px;border:1px solid var(--brd)"></div></div>
   <button class="btn-gold" onclick="savePlaylist()">Créer</button><div class="up-err" id="pl-err"></div></div></div>
+
+<div class="modal" id="req-modal"><div class="modal-inner"><button class="modal-close" onclick="closeAccessReq()">✕</button><h3>Demande d'accès adhérent</h3>
+  <p style="font-size:12px;color:var(--txt3);text-align:center;line-height:1.6;margin-bottom:14px">Remplis ces informations. Un administrateur vérifiera ta demande et t'ouvrira l'accès.</p>
+  <div style="display:flex;gap:8px;margin-bottom:11px"><div style="flex:1"><span class="fl-lbl">Prénom *</span><input class="fi-input" id="rq-prenom"></div><div style="flex:1"><span class="fl-lbl">Nom *</span><input class="fi-input" id="rq-nom"></div></div>
+  <div style="margin-bottom:11px"><span class="fl-lbl">Cours suivi *</span><input class="fi-input" id="rq-cours" placeholder="Ex : Hip-hop 8-11 ans, Tremblay"></div>
+  <div style="margin-bottom:16px"><span class="fl-lbl">Adresse mail des parents *</span><input class="fi-input" id="rq-parent" type="email" placeholder="adresse utilisée à l'inscription"></div>
+  <button class="btn-gold" onclick="submitAccessReq()">Envoyer la demande</button><div class="up-err" id="rq-err"></div></div></div>
 
 <div class="modal" id="profile-modal"><div class="modal-inner"><button class="modal-close" onclick="closeEditProfile()">✕</button><h3>Mon profil</h3>
   <div style="text-align:center;margin-bottom:18px"><div id="edit-photo-circle" onclick="document.getElementById('prof-photo-inp').click()" style="width:72px;height:72px;border-radius:50%;background:var(--gold);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500;color:#fff;overflow:hidden;cursor:pointer">TS</div><input type="file" id="prof-photo-inp" accept="image/*" style="display:none" onchange="handleProfPhoto(this.files[0])"><div style="font-size:12px;color:var(--txt3)">Appuie pour changer la photo</div></div>
@@ -770,7 +779,7 @@ function startApp(){
   $('music-admin-bar').style.display=u.role==='admin'?'flex':'none';
   $('splash').style.display='none';$('app').style.display='block';$('nav').classList.add('show');
   safe(renderNews);safe(renderHomeNews);safe(function(){buildSchool();});safe(renderPhotos);safe(renderNotifs);safe(renderSentNotifs);safe(renderAdminActus);
-  safe(loadHomeEvents);safe(loadActus);
+  safe(loadHomeEvents);safe(loadActus);safe(loadMyReq);safe(loadReqCount);if(!reqTimer)reqTimer=setInterval(function(){loadReqCount();},60000);
   goPage('home');
   if(!locked){loadCommunityVideos();loadPhotos();loadTracks();loadPlaylists();}
   if(u.role==='admin')loadAdminMembers();
@@ -1073,10 +1082,75 @@ function renderSentNotifs(){
 /* ===== ADMIN ===== */
 function switchAdmin(tab,btn){
   qa('#admin-tabs .vtab').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');
-  ['actus','membres','notifs'].forEach(function(t){$('admin-'+t).style.display=t===tab?'block':'none';});
+  ['actus','membres','notifs','demandes'].forEach(function(t){$('admin-'+t).style.display=t===tab?'block':'none';});
   if(tab==='membres')loadAdminMembers();
+  if(tab==='demandes')loadRequests();
 }
 function dispName(){var ps=cu&&cu.profile&&cu.profile.pseudo?String(cu.profile.pseudo).trim():'';return ps||(cu&&cu.name)||'';}
+/* ===== DEMANDES D'ACCES ===== */
+var myReq=null,pendingCount=0,reqTimer=null;
+function updateReqUI(){
+  var h;
+  if(myReq&&myReq.status==='pending')h='<div class="req-state">⏳ Demande envoyée, en attente de validation par un administrateur.</div>';
+  else{
+    h=(myReq&&myReq.status==='refused'?'<div class="req-state">Ta dernière demande n\'a pas été acceptée. Tu peux en refaire une.</div>':'')+'<button class="btn-gold" onclick="openAccessReq()">Demander l\'accès adhérent</button>';
+  }
+  qa('.req-zone').forEach(function(z){z.innerHTML=h;});
+}
+async function loadMyReq(){
+  if(!cu||cu.role!=='membre'){return;}
+  try{var d=await dbGet('access_requests','email=eq.'+encodeURIComponent(cu.email)+'&limit=1');myReq=Array.isArray(d)&&d.length?d[0]:null;}catch(e){console.error('req',e);myReq=null;}
+  updateReqUI();
+}
+function openAccessReq(){
+  var pr=(cu&&cu.profile)||{};
+  $('rq-prenom').value=pr.prenom||'';$('rq-nom').value=pr.nom||'';$('rq-cours').value='';$('rq-parent').value='';$('rq-err').style.display='none';
+  $('req-modal').classList.add('open');
+}
+function closeAccessReq(){$('req-modal').classList.remove('open');}
+async function submitAccessReq(){
+  var err=$('rq-err');err.style.display='none';
+  var pre=$('rq-prenom').value.trim(),nom=$('rq-nom').value.trim(),cours=$('rq-cours').value.trim(),par=$('rq-parent').value.trim().toLowerCase();
+  if(!pre||!nom||!cours||!par){err.textContent='Tous les champs sont obligatoires.';err.style.display='block';return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(par)){err.textContent='Adresse mail des parents invalide.';err.style.display='block';return;}
+  try{
+    await dbPost('access_requests',{email:cu.email,prenom:pre,nom:nom,cours:cours,parent_email:par,status:'pending'});
+    closeAccessReq();await loadMyReq();
+  }catch(e){err.textContent='Erreur : '+e.message;err.style.display='block';}
+}
+function setPendingBadge(n){
+  pendingCount=n;var d=$('req-dot');if(d){d.textContent=n;d.classList.toggle('show',n>0);}
+  var t=$('tab-demandes');if(t)t.textContent='Demandes'+(n>0?' ('+n+')':'');
+}
+async function loadReqCount(){
+  if(!cu||cu.role!=='admin')return;
+  try{var d=await db('GET','access_requests?status=eq.pending&select=id');setPendingBadge(Array.isArray(d)?d.length:0);}catch(e){console.error('reqcount',e);}
+}
+async function loadRequests(){
+  var el=$('admin-demandes-list');
+  try{
+    var d=await db('GET','access_requests?status=eq.pending&order=created_at.asc');
+    d=Array.isArray(d)?d:[];setPendingBadge(d.length);
+    if(!d.length){el.innerHTML='<div class="empty"><span class="empty-ico">✅</span><p>Aucune demande en attente.</p></div>';return;}
+    el.innerHTML=d.map(function(r){
+      return '<div class="req-card"><div class="r-nm">'+esc(r.prenom)+' '+esc(r.nom)+'</div><div class="r-in">📚 '+esc(r.cours||'')+'<br>✉️ Compte : '+esc(r.email)+'<br>👪 Parents : '+esc(r.parent_email||'')+'<br>🕒 '+new Date(r.created_at).toLocaleDateString('fr-FR')+'</div><div class="req-btns"><button class="ok" onclick="handleReq(\''+r.id+'\',true)">✓ Valider</button><button onclick="handleReq(\''+r.id+'\',false)">Refuser</button></div></div>';
+    }).join('');
+    window._reqs=d;
+  }catch(e){el.innerHTML='<div class="empty"><p>Erreur de chargement : '+esc(e.message)+'</p></div>';}
+}
+async function handleReq(id,ok){
+  var r=(window._reqs||[]).filter(function(x){return String(x.id)===String(id);})[0];if(!r)return;
+  if(!confirm(ok?'Valider l\'accès adhérent pour '+r.prenom+' '+r.nom+' ?':'Refuser cette demande ?'))return;
+  try{
+    if(ok){
+      var full=r.prenom+' '+r.nom,ini=((r.prenom||'?')[0]+(r.nom||'?')[0]).toUpperCase();
+      var u=await dbPatch('members','email=ilike.'+encodeURIComponent(r.email),{role:'adherent',expires_at:nextExpiry(),name:full,initials:ini,parent_email:r.parent_email});
+      if(!Array.isArray(u)||!u.length)throw new Error('Compte introuvable ou droits insuffisants.');
+    }
+    await dbPatch('access_requests','id=eq.'+encodeURIComponent(id),{status:ok?'approved':'refused',handled_by:cu.email,handled_at:new Date().toISOString()});
+    await loadRequests();
+  }catch(e){alert('Erreur : '+e.message);}
+}
 async function loadActus(){
   try{var d=await dbGet('actus');ACTUS=(Array.isArray(d)?d:[]).map(function(x){return {id:x.id,emoji:x.emoji||'📢',cat:x.cat||'Info',title:x.title||'',excerpt:x.excerpt||'',date:x.date_label||''};});}
   catch(e){console.error('actus',e);ACTUS=[];}
@@ -1097,14 +1171,15 @@ async function loadAdminMembers(){
   try{var d=await dbGet('members');adminList=Array.isArray(d)?d:[];renderAdminMembers();}catch(e){$('admin-members-list').innerHTML='<div class="empty"><p>Erreur de chargement.</p></div>';}
 }
 function renderAdminMembers(){
-  var master=cu&&cu.email===MASTER,rl={admin:'⚙️ Admin',adherent:'✅ Adhérent',membre:'👤 Membre'};
+  var master=cu&&cu.role==='admin',rl={admin:'⚙️ Admin',adherent:'✅ Adhérent',membre:'👤 Membre'};
   $('admin-members-list').innerHTML='<p style="font-size:12px;color:var(--txt3);margin-bottom:10px">'+adminList.length+' membres</p>'+adminList.map(function(m){
     var prot=(m.email||'').toLowerCase()===MASTER,w=(prot||!master)?'<span style="font-size:11px;color:var(--gold)">'+(rl[m.role]||'Membre')+'</span>':'<select class="role-sel" onchange="changeRole(\''+m.id+'\',this.value)"><option value="membre"'+(m.role==='membre'?' selected':'')+'>👤 Membre</option><option value="adherent"'+(m.role==='adherent'?' selected':'')+'>✅ Adhérent</option><option value="admin"'+(m.role==='admin'?' selected':'')+'>⚙️ Admin</option></select>';
     return '<div class="mrow-admin"><div class="mrow-ava">'+esc(m.initials||(m.name||'??').slice(0,2).toUpperCase())+'</div><div class="mrow-info"><div class="mrow-nm">'+esc(m.name||m.email)+(prot?' 👑':'')+'</div><div class="mrow-em">'+esc(m.email)+'</div></div>'+w+'</div>';
   }).join('');
 }
 async function changeRole(id,role){
-  if(!cu||cu.email!==MASTER){alert('Seul l\'admin principal peut modifier les rôles.');return;}
+  if(!cu||cu.role!=='admin'){alert('Réservé aux administrateurs.');return;}
+  if(role==='admin'&&cu.email!==MASTER){alert('Seul l\'admin principal peut nommer un administrateur.');return;}
   try{
     var data={role:role};if(role==='adherent')data.expires_at=nextExpiry();
     await dbPatch('members','id=eq.'+encodeURIComponent(id),data);
