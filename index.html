@@ -535,11 +535,7 @@ var SUPA_URL=_su.join(''),SUPA_KEY=_sk.join('');
 var CL_CLOUD='deiumbpc1',CL_PRESET='tinoschool_upload';
 var MASTER='tinoschool.info@gmail.com';
 
-var ACTUS=[
- {id:1,emoji:'🌟',cat:'Spectacle',title:"Spectacle de Fin d'Année — Samedi 13 Juin 2026",excerpt:"Le spectacle aura lieu le 13 juin. Une soirée exceptionnelle pour clôturer la saison !",date:'19 mai 2026'},
- {id:2,emoji:'🎟️',cat:'Billetterie',title:'Billetterie ouverte pour le Spectacle du 13 Juin',excerpt:'Les billets sont disponibles. Places limitées !',date:'19 mai 2026'},
- {id:3,emoji:'📋',cat:'Évaluation',title:'Évaluation — Dimanche 21 Juin 2026',excerpt:'Les évaluations de fin de saison auront lieu le 21 juin.',date:'19 mai 2026'}
-];
+var ACTUS=[];
 var VIDEOS_SCHOOL=[
  {id:'LNM9dNaxI34',cat:'festival',title:'Tinoschool Week — Live complet',year:'2023',lieu:'Tremblay-en-France'},
  {id:'WyjiNUHop8Q',cat:'festival',title:'Tinoschool Week 2018 — Teaser',year:'2018',lieu:'Tremblay-en-France'},
@@ -774,7 +770,7 @@ function startApp(){
   $('music-admin-bar').style.display=u.role==='admin'?'flex':'none';
   $('splash').style.display='none';$('app').style.display='block';$('nav').classList.add('show');
   safe(renderNews);safe(renderHomeNews);safe(function(){buildSchool();});safe(renderPhotos);safe(renderNotifs);safe(renderSentNotifs);safe(renderAdminActus);
-  safe(loadHomeEvents);
+  safe(loadHomeEvents);safe(loadActus);
   goPage('home');
   if(!locked){loadCommunityVideos();loadPhotos();loadTracks();loadPlaylists();}
   if(u.role==='admin')loadAdminMembers();
@@ -1080,15 +1076,22 @@ function switchAdmin(tab,btn){
   ['actus','membres','notifs'].forEach(function(t){$('admin-'+t).style.display=t===tab?'block':'none';});
   if(tab==='membres')loadAdminMembers();
 }
-function addActu(){
+async function loadActus(){
+  try{var d=await dbGet('actus');ACTUS=(Array.isArray(d)?d:[]).map(function(x){return {id:x.id,emoji:x.emoji||'📢',cat:x.cat||'Info',title:x.title||'',excerpt:x.excerpt||'',date:x.date_label||''};});}
+  catch(e){console.error('actus',e);ACTUS=[];}
+  renderNews();renderHomeNews();renderAdminActus();
+}
+async function addActu(){
   var title=$('actu-title').value.trim();if(!title){alert('Le titre est obligatoire.');return;}
-  ACTUS.unshift({id:Date.now(),emoji:$('actu-emoji').value,cat:$('actu-cat').value.trim()||'Info',title:title,excerpt:$('actu-excerpt').value.trim(),date:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})});
-  $('actu-title').value='';$('actu-cat').value='';$('actu-excerpt').value='';renderNews();renderHomeNews();renderAdminActus();
+  var row={emoji:$('actu-emoji').value,cat:$('actu-cat').value.trim()||'Info',title:title,excerpt:$('actu-excerpt').value.trim(),date_label:new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})};
+  try{await dbPost('actus',row);}catch(e){alert('Erreur lors de la publication : '+e.message);return;}
+  $('actu-title').value='';$('actu-cat').value='';$('actu-excerpt').value='';
+  await loadActus();
 }
 function renderAdminActus(){
   $('admin-actus-list').innerHTML=ACTUS.map(function(a,i){return '<div class="mrow-admin"><span style="font-size:18px">'+a.emoji+'</span><div class="mrow-info"><div class="mrow-nm">'+esc(a.title)+'</div><div class="mrow-em">'+esc(a.cat)+' · '+esc(a.date)+'</div></div><button class="tr-x" onclick="deleteActu('+i+')">🗑</button></div>';}).join('');
 }
-function deleteActu(i){if(!confirm('Supprimer cette actualité ?'))return;ACTUS.splice(i,1);renderNews();renderHomeNews();renderAdminActus();}
+async function deleteActu(i){if(!confirm('Supprimer cette actualité ?'))return;var a=ACTUS[i];if(!a)return;try{await dbDel('actus',a.id);}catch(e){alert('Erreur lors de la suppression : '+e.message);return;}await loadActus();}
 async function loadAdminMembers(){
   try{var d=await dbGet('members');adminList=Array.isArray(d)?d:[];renderAdminMembers();}catch(e){$('admin-members-list').innerHTML='<div class="empty"><p>Erreur de chargement.</p></div>';}
 }
